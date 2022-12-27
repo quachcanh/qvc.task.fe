@@ -1,0 +1,40 @@
+.m-c-info {
+  width: 350px;
+  height: auto;
+  position: absolute;
+  bottom: 20px;
+  color: #fff;
+}
+
+.m-c-hello {
+  width: 100%;
+  height: auto;
+  padding-bottom: 10px;
+}
+
+.m-c-hello > span {
+  font-family: GoogleSans-Bold;
+  font-size: 14px;
+}
+
+.m-c-datetime {
+  width: 100%;
+  height: auto;
+}
+
+.m-c-saying {
+  width: 100%;
+  height: auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.m-c-saying > span {
+  font-family: GoogleSans-Bold;
+  font-size: 13px;
+}
+
+.datetime-text {
+  font-family: GoogleSans-Bold;
+  font-size: 60px;
+}

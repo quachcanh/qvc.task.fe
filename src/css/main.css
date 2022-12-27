@@ -1,0 +1,49 @@
+/* 
+@import url(./base/combobox.css);
+@import url(./base/input.css);
+@import url(./base/table.css);
+@import url(./base/tooltip.css);
+@import url(./base/checkbox.css);
+@import url(./base/dialog.css);
+@import url(./base/toastmessage.css);
+ */
+
+@import url(./layout/header.css);
+@import url(./layout/sidebar.css);
+@import url(./layout/content.css);
+@import url(./base/scrollbar.css);
+@import url(./base/button.css);
+
+@font-face {
+  font-family: GoogleSans;
+  src: url(/src/assets/fonts/Open_Sans/static/OpenSans/OpenSans-Regular.ttf);
+}
+
+@font-face {
+  font-family: GoogleSans-Bold;
+  src: url(/src/assets/fonts/Open_Sans/static/OpenSans/OpenSans-SemiBold.ttf);
+}
+
+body {
+  margin: 0;
+  font-size: 14px;
+  position: relative;
+}
+* {
+  font-family: GoogleSans;
+}
+
+.container {
+  display: flex;
+  box-sizing: border-box;
+  height: 100vh;
+  width: 100%;
+  background-image: url(/src/assets/img/lightbulb-3104355.jpg);
+  background-repeat: no-repeat;
+  background-size: 100% 100vh;
+}
+
+.main {
+  width: calc(100% - 250px);
+  height: 100vh;
+}
