@@ -14,7 +14,7 @@
 
 .m-c-hello > span {
   font-family: GoogleSans-Bold;
-  font-size: 14px;
+  font-size: 20px;
 }
 
 .m-c-datetime {
@@ -31,7 +31,7 @@
 
 .m-c-saying > span {
   font-family: GoogleSans-Bold;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .datetime-text {

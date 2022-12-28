@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="container task">
     <div class="sidebar">
       <div class="s-logo">
         <div class="s-l-img"></div>

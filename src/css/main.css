@@ -13,6 +13,7 @@
 @import url(./layout/content.css);
 @import url(./base/scrollbar.css);
 @import url(./base/button.css);
+@import url(./layout/login.css);
 
 @font-face {
   font-family: GoogleSans;
@@ -30,7 +31,7 @@ body {
   position: relative;
 }
 * {
-  font-family: GoogleSans;
+  font-family: Arial;
 }
 
 .container {
@@ -38,9 +39,12 @@ body {
   box-sizing: border-box;
   height: 100vh;
   width: 100%;
+}
+
+.task {
   background-image: url(/src/assets/img/lightbulb-3104355.jpg);
   background-repeat: no-repeat;
-  background-size: 100% 100vh;
+  background-size: cover;
 }
 
 .main {
