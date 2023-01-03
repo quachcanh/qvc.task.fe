@@ -6,8 +6,21 @@
         <div class="login-header-title">QVC TASK</div>
       </div>
       <div class="w-l-content">
-        <div class="item-control c-username"></div>
-        <div class="item-control c-password"></div>
+        <div class="item-control">
+          <input
+            placeholder="Tên đăng nhập/email"
+            class="input c-username"
+            type="text"
+          />
+        </div>
+        <div class="item-control">
+          <input
+            placeholder="Mật khẩu"
+            class="input c-password"
+            type="password"
+          />
+          <div class="icon icon-16 showpass"></div>
+        </div>
         <div class="c-restore-pass"><span>Quên mật khẩu?</span></div>
         <div class="item-control c-btn-login">
           <span>Đăng nhập</span>

@@ -31,7 +31,6 @@
   height: 75%;
   border-left: 1px solid #fff;
   margin-left: 15px;
-  margin-right: 10px;
 }
 
 .icon-h-drop {
@@ -42,6 +41,19 @@
   background-repeat: no-repeat;
   background-position: -232px -104px;
   filter: brightness(0) invert(1);
+}
+
+.btn-add-plus {
+  height: 100%;
+  width: 32px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top-right-radius: 50px;
+  border-bottom-right-radius: 50px;
+  margin-right: -16px;
+  padding-right: 5px;
 }
 
 .m-h-right {

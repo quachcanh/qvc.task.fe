@@ -1,13 +1,16 @@
 /* 
 @import url(./base/combobox.css);
-@import url(./base/input.css);
+
 @import url(./base/table.css);
 @import url(./base/tooltip.css);
 @import url(./base/checkbox.css);
 @import url(./base/dialog.css);
 @import url(./base/toastmessage.css);
  */
-
+@import url(./base/dialog.css);
+@import url(./base/icon.css);
+@import url(./base/popup.css);
+@import url(./base/input.css);
 @import url(./layout/header.css);
 @import url(./layout/sidebar.css);
 @import url(./layout/content.css);

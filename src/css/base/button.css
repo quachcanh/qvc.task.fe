@@ -87,6 +87,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
 }
 
 .btn-header:hover {
@@ -94,8 +95,8 @@
 }
 
 .btn-h-text {
-  font-family: GoogleSans-Bold;
   font-size: 14px;
+  font-weight: bold;
   color: #ffff;
 }
 
@@ -107,6 +108,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
 }
 
 .btn-icon-header:hover {

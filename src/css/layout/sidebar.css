@@ -62,7 +62,7 @@
 .i__content-menu {
   color: #fff;
   font-size: 17px;
-  font-family: GoogleSans-Bold;
+  font-weight: bold;
 }
 
 .home {
@@ -164,7 +164,7 @@
 .list-content {
   color: #fff;
   font-size: 17px;
-  font-family: GoogleSans-Bold;
+  font-weight: bold;
 }
 
 .icon-extend {

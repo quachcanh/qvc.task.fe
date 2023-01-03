@@ -1,0 +1,22 @@
+.icon {
+  background-color: transparent;
+  background-repeat: no-repeat;
+}
+
+.icon-16 {
+  width: 16px;
+  height: 16px;
+  background-size: 16px 16px;
+}
+
+.icon-24 {
+  width: 24px;
+  height: 24px;
+  background-size: 24px 24px;
+}
+
+.icon-32 {
+  width: 32px;
+  height: 32px;
+  background-size: 32px 32px;
+}

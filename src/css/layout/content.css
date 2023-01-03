@@ -13,7 +13,6 @@
 }
 
 .m-c-hello > span {
-  font-family: GoogleSans-Bold;
   font-size: 20px;
 }
 
@@ -30,11 +29,9 @@
 }
 
 .m-c-saying > span {
-  font-family: GoogleSans-Bold;
   font-size: 15px;
 }
 
 .datetime-text {
-  font-family: GoogleSans-Bold;
   font-size: 60px;
 }
