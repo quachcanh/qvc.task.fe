@@ -4,7 +4,7 @@
   height: 36px;
   border-radius: 5px;
   border: none;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
   text-align: center;
   padding: 0px 16px 0px 16px;
@@ -34,7 +34,7 @@
   width: 20px;
   height: 20px;
   background-color: transparent;
-  margin-right: 4px;
+  margin-right: 8px;
 }
 
 .icon__btn-header {
@@ -88,6 +88,7 @@
   justify-content: center;
   cursor: pointer;
   position: relative;
+  user-select: none;
 }
 
 .btn-header:hover {
@@ -95,7 +96,7 @@
 }
 
 .btn-h-text {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: bold;
   color: #ffff;
 }

@@ -3,6 +3,24 @@
   background-repeat: no-repeat;
 }
 
+.icon-6 {
+  width: 6px;
+  height: 6px;
+  background-size: 6px 6px;
+}
+
+.icon-10 {
+  width: 10px;
+  height: 10px;
+  background-size: 10px 10px;
+}
+
+.icon-13 {
+  width: 13px;
+  height: 13px;
+  background-size: 13px 13px;
+}
+
 .icon-16 {
   width: 16px;
   height: 16px;
@@ -13,6 +31,18 @@
   width: 24px;
   height: 24px;
   background-size: 24px 24px;
+}
+
+.icon-25 {
+  width: 25px;
+  height: 25px;
+  background-size: 25px 25px;
+}
+
+.icon-30 {
+  width: 30px;
+  height: 30px;
+  background-size: 30px 30px;
 }
 
 .icon-32 {

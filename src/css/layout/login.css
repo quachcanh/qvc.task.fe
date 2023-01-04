@@ -7,16 +7,6 @@
   padding: 48px 48px 48px 48px;
 }
 
-.login {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  background-image: url(/src/assets/img/background-login.jpg);
-  background-repeat: no-repeat;
-  background-size: cover;
-}
-
 .copy-right {
   padding-top: 14px;
   font-size: 13px;
