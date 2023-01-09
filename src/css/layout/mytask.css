@@ -77,6 +77,7 @@
 
 .h-left-tab {
   display: flex;
+  position: relative;
 }
 
 .tab-item {
@@ -164,6 +165,26 @@
 .b-header-right {
   display: flex;
   align-items: center;
+  position: relative;
+}
+
+.popup-filter{
+  top: 46px;
+    right: 0px;
+}
+
+.arrow-filter{
+  right: 18px !important;
+}
+
+.icon-close{
+  background-image: url(/src/assets/img/list-icon.svg);
+  background-position: -360px -104px;
+}
+
+.p-header-title{
+  font-size: 17px;
+  font-weight: 700;
 }
 
 .bh-layout {
@@ -292,4 +313,9 @@
   height: 24px;
   background-image: url(/src/assets/img/list-icon.svg);
   background-position: -228px -164px;
+}
+
+.cbb-other{
+  top: calc(100% + 5px);
+  right: -74px;
 }

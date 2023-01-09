@@ -30,6 +30,15 @@
               <div class="icon-h-drop drop-black"></div>
             </div>
           </div>
+          <div class="popup-combobox cbb-other">
+            <div class="arror arrow-top"></div>
+            <div class="p-s-content">
+              <div class="item-ccb"><span>Việc chờ duyệt</span>
+                <div class="icon icon-cbb"></div>
+              </div>
+              <div class="item-ccb"><span>Việc tôi quản lý</span></div>
+            </div>
+          </div>
         </div>
       </div>
       <div class="mt-header-right">
@@ -72,6 +81,24 @@
             </button>
             <div class="bh-layout"></div>
             <div class="icon icon-24 icon-filter"></div>
+            <div class="popup popup-filter">
+              <div class="arror arrow-top arrow-filter"></div>
+              <div class="popup-header">
+                <div class="p-header-title">Lọc công việc</div>
+                <div class="icon icon-pos-16 icon-close"></div>
+              </div>
+              <div class="popup-body">
+                <div class="from-item item-pos">
+                  <!-- <div class="f-i-title">Email</div> -->
+                  <input placeholder="Tìm kiếm công việc" class="input i-search-left" type="text" name="" id="">
+                  <div class="icon icon-pos-16 icon-search"></div>
+                </div>
+              </div>
+              <div class="popup-footer">
+                <button class="btn btn-light">Bỏ lọc</button>
+                <button class="btn btn-success">Áp dụng</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="c-body-content scrollbar">
@@ -117,17 +144,13 @@
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-24 icon-datepicker-yes"
-                    ></div>
+                    <div class="td-m-icon icon icon-24 icon-datepicker-yes"></div>
                     <div class="td-m-text">12/12/2022</div>
                   </div>
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-10 icon-status outofdate"
-                    ></div>
+                    <div class="td-m-icon icon icon-10 icon-status outofdate"></div>
                     <div class="td-m-text">Quá hạn</div>
                   </div>
                 </td>
@@ -156,9 +179,7 @@
               <tr>
                 <td>
                   <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-24 icon-complete completed"
-                    ></div>
+                    <div class="td-m-icon icon icon-24 icon-complete completed"></div>
                     <div class="td-m-text">Tạo công việc của cá nhân</div>
                   </div>
                 </td>
@@ -185,9 +206,7 @@
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-10 icon-status jobdue"
-                    ></div>
+                    <div class="td-m-icon icon icon-10 icon-status jobdue"></div>
                     <div class="td-m-text">Đến hạn</div>
                   </div>
                 </td>
@@ -237,9 +256,7 @@
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-24 icon-datepicker-yes"
-                    ></div>
+                    <div class="td-m-icon icon icon-24 icon-datepicker-yes"></div>
                     <div class="td-m-text">12/12/2022</div>
                   </div>
                 </td>
@@ -292,7 +309,7 @@ export default {
       },
     },
   },
-  created() {},
+  created() { },
   methods: {},
   data() {
     return {};
@@ -300,4 +317,6 @@ export default {
 };
 </script>
 
-<style></style>
+<style>
+
+</style>

@@ -10,6 +10,7 @@
 @import url(./base/button.css);
 @import url(./layout/login.css);
 @import url(./base/table.css);
+@import url(./layout/register.css);
 
 @font-face {
   font-family: GoogleSans;

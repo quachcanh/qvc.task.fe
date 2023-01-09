@@ -3,6 +3,11 @@
   background-repeat: no-repeat;
 }
 
+.icon-pos-16{
+  width: 16px;
+  height: 16px;
+}
+
 .icon-6 {
   width: 6px;
   height: 6px;

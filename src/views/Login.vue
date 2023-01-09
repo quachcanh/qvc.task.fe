@@ -28,7 +28,7 @@
       </div>
       <div class="w-l-footer">
         <span class="no-account">Chưa có tài khoản?</span>
-        <span class="no-sigup"><b>Đăng ký</b></span>
+        <router-link to="/register" class="no-sigup"><b>Đăng ký</b></router-link>
       </div>
     </div>
     <div class="copy-right">Copyright © 2022 QVC TASK</div>
@@ -48,5 +48,4 @@ export default {
 </script>
 
 <style>
-@import url(../css/main.css);
 </style>
