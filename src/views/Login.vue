@@ -22,13 +22,15 @@
           <div class="icon icon-16 showpass"></div>
         </div>
         <div class="c-restore-pass"><span>Quên mật khẩu?</span></div>
-        <div class="item-control c-btn-login">
+        <router-link to="/" class="item-control c-btn-login">
           <span>Đăng nhập</span>
-        </div>
+        </router-link>
       </div>
       <div class="w-l-footer">
         <span class="no-account">Chưa có tài khoản?</span>
-        <router-link to="/register" class="no-sigup"><b>Đăng ký</b></router-link>
+        <router-link to="/register" class="no-sigup"
+          ><b>Đăng ký</b></router-link
+        >
       </div>
     </div>
     <div class="copy-right">Copyright © 2022 QVC TASK</div>
@@ -47,5 +49,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

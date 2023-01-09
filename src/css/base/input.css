@@ -26,7 +26,12 @@
   color: #9e9e9e;
 }
 
-.i-search-left{
+.i-search-left {
   padding-left: 32px;
-  width: calc(100% - 40px);
+  width: calc(100% - 42px);
+}
+
+.i-cbb-right {
+  padding-right: 32px;
+  width: calc(100% - 42px);
 }
