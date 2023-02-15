@@ -59,8 +59,8 @@
           <div class="b-header-left">
             <div class="bh-left-job-soon">
               <div class="job-soon job-text">Công việc sắp đến hạn</div>
-              <div class="job-soon job-state">7 ngày gần nhất</div>
-              <div class="job-soon job-icon">
+              <div class="job-soon job-state" @click="isShowSortByDate = !isShowSortByDate">7 ngày gần nhất</div>
+              <div class="job-soon job-icon" @click="isShowSortByDate = !isShowSortByDate">
                 <div class="icon-h-drop drop-gray"></div>
               </div>
               <div class="popup-combobox popup-sort">
@@ -85,18 +85,7 @@
               <div class="job-sort sort-icon">
                 <div class="icon-h-drop drop-gray"></div>
               </div>
-              <div class="popup-combobox popup-sort-time">
-                <div class="arror arrow-top"></div>
-                <div class="p-s-content">
-                  <div class="item-ccb">
-                    <span>7 ngày gần nhất</span>
-                    <div class="icon icon-cbb"></div>
-                  </div>
-                  <div class="item-ccb"><span>15 ngày gần nhất</span></div>
-                  <div class="item-ccb"><span>30 ngày gần nhất</span></div>
-                  <div class="item-ccb"><span>Tuỳ chọn</span></div>
-                </div>
-              </div>
+              <SortByDate v-if="isShowSortByDate"></SortByDate>
             </div>
           </div>
           <div class="b-header-right">
@@ -489,9 +478,10 @@
 </template>
 
 <script>
+import SortByDate from "./../../components/popup/sort-by-date.vue";
 export default {
   name: "MyTask",
-  components: {},
+  components: { SortByDate },
   watch: {
     // Thay đổi title
     $route: {
@@ -504,7 +494,9 @@ export default {
   created() {},
   methods: {},
   data() {
-    return {};
+    return {
+      isShowSortByDate: false,
+    };
   },
 };
 </script>

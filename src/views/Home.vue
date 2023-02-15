@@ -172,7 +172,7 @@
           </div>
           <div class="btn-icon-header">
             <div class="icon-header icon-setting"></div>
-            <div class="popup-settings">
+            <div class="popup-settings" style="display: none;">
               <div class="arror arrow-top settings-arrow"></div>
               <div class="p-s-header">Thiết lập chung</div>
               <div class="p-s-content">

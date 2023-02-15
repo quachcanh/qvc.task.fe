@@ -8,6 +8,7 @@
       <div class="w-l-content">
         <div class="item-control">
           <input
+            ref="username"
             placeholder="Tên đăng nhập/email"
             class="input c-username"
             type="text"
@@ -41,8 +42,22 @@
 export default {
   name: "LoginAccount",
   components: {},
-  created() {},
-  methods: {},
+  created() {
+    this.autoFocus();
+  },
+  methods: {
+    /**
+     * Thực hiện focus vào ô nhập liệu đầu tiên khi form được mở lên
+     * Author: QVCANH (01/12/2022)
+     */
+    autoFocus() {
+      try {
+        this.$nextTick(() => this.$refs.username.focus());
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  },
   data() {
     return {};
   },
