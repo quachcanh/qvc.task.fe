@@ -1,0 +1,10 @@
+Khi đăng kí tài khoản -> tạo bản ghi thoong tin trong dbinfo.
+					-> tạo db theo username -> lưu thông tin nhân viên trong db domain
+Khi người khác thêm công ty -> tạo bản ghi thông tin cty có chứa username lưu vào db info
+							-> từ mã công ty, có thể select ra dbdomain
+Khi người khác thêm thành viên vào công ty -> Tìm thành viên theo dbinfo
+											-> Coppy thông tin thành viên từ db info vào dbdomain
+Khi đăng nhập vào cá nhân -> vào trực tiếp dbdomain theo username
+Khi đăng nhập vào công ty -> yêu cầu nhập mã công ty -> select ra dbdomain.
+Mỗi người chỉ được thuộc một cty.
+Mỗi người có thể thuộc nhiều phòng ban, dự án, công việc.
