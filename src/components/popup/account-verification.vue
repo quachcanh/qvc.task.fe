@@ -97,6 +97,8 @@ export default {
                 if (res.data.Code == this.code) {
                   // Gọi API cập nhật thông tin
                   this.updateAccountType();
+                  // Gọi API thực hiện tạo db domain
+                  this.createDBDomain();
                   this.error = [];
                   this.error.push(
                     "Tài khoản đã được xác minh. Đăng nhập để tiếp tục."
@@ -113,7 +115,7 @@ export default {
                 }
                 this.isShowWaring = true;
               }
-            }, 3000);
+            }, 1000);
           })
           .catch((res) => {
             setTimeout(() => {
@@ -138,6 +140,19 @@ export default {
         this.keyWarning = ENUMWARNING.Waring;
         this.isShowWaring = true;
       }
+    },
+
+    /**
+     * Thực hiện tạo db domain
+     */
+    createDBDomain() {
+      this.axios
+        .post(
+          "http://localhost:56428/api/v2/Registers/CreateDBDomain",
+          this.employee
+        )
+        .then(() => {})
+        .catch(() => {});
     },
 
     /**

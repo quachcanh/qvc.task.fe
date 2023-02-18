@@ -8,3 +8,11 @@ Khi đăng nhập vào cá nhân -> vào trực tiếp dbdomain theo username
 Khi đăng nhập vào công ty -> yêu cầu nhập mã công ty -> select ra dbdomain.
 Mỗi người chỉ được thuộc một cty.
 Mỗi người có thể thuộc nhiều phòng ban, dự án, công việc.
+
+Khi đăng nhập cá nhân -> Nếu nhập email: Xuống BE query vào db info lấy ra username -> Gọi hàm login (query vào dbdomain)
+						-> Nếu nhập username: Xuống BE gọi hàm login (query vào dbdomain)
+
+Khi đăng nhập công ty 
+-> Từ mã công ty -> Goi hàm GetDBDomain (query vào dbinfo) lấy ra dbdomain -> Gọi hàm login (query vào dbdomain)
+
+Chung 1 controlor là login(mã côgn ty, username, email, pass);

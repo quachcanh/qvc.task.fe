@@ -14,3 +14,12 @@ export const ENUMBTN = {
     /**Huỷ bỏ */
     Cancel:2
 };
+
+export const ENUMICON = {
+    /**Icon cảnh báo */
+    Waring: 0,
+    /**Icon info */
+    Info: 1,
+    /**Icon verify */
+    Verify: 2
+};
