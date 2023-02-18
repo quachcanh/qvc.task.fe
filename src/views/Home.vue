@@ -62,7 +62,7 @@
                 <div class="item-icon icon icon-24 add-project-group"></div>
                 <div class="item-text">Thêm dự án/nhóm</div>
               </div>
-              <div class="p-a-item">
+              <div class="p-a-item" @click="onShowFormDeprt">
                 <div class="item-icon icon icon-24 add-deprt"></div>
                 <div class="item-text">Thêm phòng ban</div>
               </div>
@@ -213,16 +213,34 @@
     @onClose="isShowWaring = false"
     @onConfirm="onConfirm"
   ></PopupNotification>
+  <DepartmentDetail
+    v-if="isShowDepartment"
+    @onClose="isShowDepartment = !isShowDepartment"
+    @onCancel="isShowDepartment = !isShowDepartment"
+    @onConfirm="insertDepartment"
+  ></DepartmentDetail>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
+  <ToastMessage ref="toast"></ToastMessage>
 </template>
 
 <script>
 import PopupNotification from "./../components/popup/popup-notification.vue";
 import ListDepartment from "./../components/menu/list-department.vue";
+import DepartmentDetail from "./../components/form/department-detail.vue";
+import QvcLoading from "./../components/dialog/qvc-loading.vue";
+import ToastMessage from "./../components/toast/toast-message.vue";
 import { ENUMICON } from "@/enum.js";
 import { ENUMPOPUP } from "@/enum.js";
+import { ENUMTOAST } from "@/enum.js";
 export default {
   name: "HomeTask",
-  components: { PopupNotification, ListDepartment },
+  components: {
+    PopupNotification,
+    ListDepartment,
+    DepartmentDetail,
+    QvcLoading,
+    ToastMessage,
+  },
   created() {
     // Kiểm tra xem đã login hay chưa?
     if (!localStorage.getItem("access-token")) {
@@ -284,6 +302,77 @@ export default {
     goToLogin() {
       this.isShowWaring = false;
       this.$router.push("/login");
+    },
+
+    /**
+     * Tạo mã phòng ban random
+     */
+    generateCodeDeprt() {
+      // Generate a random integer between 0 and 99999
+      const randomNumber = Math.floor(Math.random() * 100000);
+
+      // Pad the number with leading zeros to ensure it has 5 digits
+      const randomCode = randomNumber.toString().padStart(5, "0");
+
+      // Concatenate the code with the prefix 'DP'
+      const finalCode = "DP" + randomCode;
+
+      return finalCode;
+    },
+
+    /**
+     * Hiển thị form thêm phòng ban
+     */
+    onShowFormDeprt() {
+      this.isShowAddJob = false;
+      this.isShowDepartment = true;
+    },
+
+    /**
+     * Thực hiên thêm mới phòng ban
+     * @param {*} deprt thông tin phòng ban
+     * @param {*} listid danh sách id nhân viên
+     */
+    insertDepartment(deprt, listid) {
+      // Bulid dữ liệu
+      var data = {
+        Data: {
+          DepartmentName: deprt.DepartmentName,
+          DepartmentCode: this.generateCodeDeprt(),
+        },
+        DBDomain: localStorage.getItem("domain-db"),
+      };
+      this.isShowLoading = true;
+      //Gọi API
+      this.axios
+        .post("http://localhost:56428/api/v2/Department/insert", data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowDepartment = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu phòng ban đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            //Lấy lại danh sách phòng ban
+            this.getDepartment();
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể thêm mới phòng ban. Vui lòng kiểm tra lại.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+      console.log(listid);
     },
 
     /**
@@ -390,9 +479,16 @@ export default {
       /**Danh sách phòn ban */
       departments: [],
 
+      /**Hiển thị dialog thêm phòng ban */
+      isShowDepartment: false,
+
+      /**Hiển thị loading */
+      isShowLoading: false,
+
       /**Dữ liệu enum */
       ENUMICON,
       ENUMPOPUP,
+      ENUMTOAST,
     };
   },
 };

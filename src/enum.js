@@ -34,3 +34,14 @@ export const ENUMPOPUP = {
     /**Popup thông báo cần login */
     Login: 2,
 };
+
+export const ENUMTOAST = {
+    /**Toast cảnh báo */
+    Waring: 0,
+
+    /**Toast thông tin */
+    Info: 1,
+    
+    /**Toast thành công */
+    Success:2,
+};
