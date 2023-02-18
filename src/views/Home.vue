@@ -24,36 +24,12 @@
         <div class="s-o__setting"></div>
       </div>
       <div class="s-list scrollbar">
-        <div class="s-l-item">
-          <div class="s-l-i-left">
-            <div class="l-i__icon icon-extend"></div>
-            <div class="l-i__content-list list-content">Cá nhân</div>
-          </div>
-          <div class="s-l-i-right">
-            <div class="l-i__icon add-project"></div>
-            <div class="l-i__icon view-project"></div>
-          </div>
-        </div>
-        <div class="s-list-item__project">
-          <div class="s-l__p-icon">
-            <div class="icon-project icon_my-job"></div>
-          </div>
-          <div class="s-l__p-text">
-            <span class="list-content">Công việc cá nhân</span>
-          </div>
-        </div>
-        <div class="s-l-item">
-          <div class="s-l-i-left">
-            <div class="l-i__icon icon-collapse"></div>
-            <div class="l-i__content-list list-content">
-              Phòng tài chính kế toán
-            </div>
-          </div>
-          <div class="s-l-i-right">
-            <div class="l-i__icon add-project"></div>
-            <div class="l-i__icon view-project"></div>
-          </div>
-        </div>
+        <ListDepartment
+          v-for="(item, index) in departments"
+          :key="index"
+          :name="item.DepartmentName"
+          :id="item.DepartmentID"
+        ></ListDepartment>
       </div>
     </div>
     <div class="main">
@@ -69,10 +45,10 @@
             <div class="icon__btn-header icon-add"></div>
             <span class="btn-h-text">Thêm công việc</span>
             <div class="btn-h-layout"></div>
-            <div class="btn-add-plus">
+            <div class="btn-add-plus" @click="isShowAddJob = !isShowAddJob">
               <div class="icon-h-drop"></div>
             </div>
-            <div class="popup-add-job" style="display: none">
+            <div class="popup-add-job" v-if="isShowAddJob">
               <div class="arror arrow-top"></div>
               <div class="p-a-item">
                 <div class="item-icon icon icon-24 add-job"></div>
@@ -102,9 +78,12 @@
               </div>
             </div>
           </div>
-          <div class="btn-icon-header">
+          <div
+            class="btn-icon-header"
+            @click.stop="isShowFilter = !isShowFilter"
+          >
             <div class="icon-header icon-search"></div>
-            <div class="popup-search" style="display: none">
+            <div class="popup-search" v-if="isShowFilter">
               <div class="arror arrow-top search-arrow"></div>
               <div class="p-n-input">
                 <input
@@ -126,18 +105,27 @@
               </div>
             </div>
           </div>
-          <div class="btn-icon-header">
+          <div
+            class="btn-icon-header"
+            @click.stop="this.isShowNotification = !this.isShowNotification"
+          >
             <div class="icon-header icon-notification"></div>
-            <div class="popup-notification" style="display: none">
+            <div class="popup-notification" v-if="isShowNotification">
               <div class="arror arrow-top notification-arrow"></div>
               <div class="p-n-header">
                 <div class="p-n-h-title">Thông báo</div>
                 <div class="p-n-h-func">
-                  <div class="btn-nofiti">
+                  <div
+                    class="btn-nofiti"
+                    @click.stop="isShowNotifiFilter = !isShowNotifiFilter"
+                  >
                     <span>Tất cả</span>
                     <div class="icon-nofiti"></div>
                   </div>
-                  <div class="popup-notification-view-menu">
+                  <div
+                    class="popup-notification-view-menu"
+                    v-if="isShowNotifiFilter"
+                  >
                     <div class="p-a-item">
                       <div class="item-text">Tất cả</div>
                     </div>
@@ -145,10 +133,16 @@
                       <div class="item-text">Chưa đọc</div>
                     </div>
                   </div>
-                  <div class="btn-menu">
+                  <div
+                    class="btn-menu"
+                    @click.stop="isShowNotifiSetting = !isShowNotifiSetting"
+                  >
                     <div class="icon-menu"></div>
                   </div>
-                  <div class="popup-notification-view-setup">
+                  <div
+                    class="popup-notification-view-setup"
+                    v-if="isShowNotifiSetting"
+                  >
                     <div class="p-a-item">
                       <div class="item-icon icon icon-16 icon-checkall"></div>
                       <div class="item-text">Đánh dấu đã đọc tất cả</div>
@@ -170,9 +164,12 @@
           <div class="btn-icon-header">
             <div class="icon-header icon-message"></div>
           </div>
-          <div class="btn-icon-header">
+          <div
+            class="btn-icon-header"
+            @click="this.isShowSetting = !this.isShowSetting"
+          >
             <div class="icon-header icon-setting"></div>
-            <div class="popup-settings" style="display: none;">
+            <div class="popup-settings" v-if="isShowSetting">
               <div class="arror arrow-top settings-arrow"></div>
               <div class="p-s-header">Thiết lập chung</div>
               <div class="p-s-content">
@@ -192,7 +189,7 @@
       <div class="m-content">
         <div class="m-c-info">
           <div class="m-c-hello">
-            <span class="hello-text">Xin chào Quách Văn Cảnh</span>
+            <span class="hello-text">{{ hello }}</span>
           </div>
           <div class="m-c-datetime">
             <span class="datetime-text">{{ time }}</span>
@@ -207,17 +204,88 @@
       </div>
     </div>
   </div>
+  <PopupNotification
+    v-if="isShowWaring"
+    :title="titleWaring"
+    :content="contentWaring"
+    :typeicon="typeIcon"
+    :showbtncancel="false"
+    @onClose="isShowWaring = false"
+    @onConfirm="onConfirm"
+  ></PopupNotification>
 </template>
 
 <script>
+import PopupNotification from "./../components/popup/popup-notification.vue";
+import ListDepartment from "./../components/menu/list-department.vue";
+import { ENUMICON } from "@/enum.js";
+import { ENUMPOPUP } from "@/enum.js";
 export default {
   name: "HomeTask",
-  components: {},
+  components: { PopupNotification, ListDepartment },
   created() {
-    this.showTime();
-    this.getSaying();
+    // Kiểm tra xem đã login hay chưa?
+    if (!localStorage.getItem("access-token")) {
+      // Hiển thị thông báo đăng nhập
+      this.contentWaring = [];
+      this.contentWaring.push(
+        "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại để tiếp tục."
+      );
+      this.typeIcon = ENUMICON.Waring;
+      this.typePopup = ENUMPOPUP.Login;
+      this.isShowWaring = true;
+    } else {
+      // Hiển thị thông tin người dùng
+      this.setInfoSession();
+
+      // Hiển thị danh sách phòng ban
+      this.getDepartment();
+      this.showTime();
+      this.getSaying();
+    }
   },
   methods: {
+    /**Sự kiện khi ấn đồng ý */
+    onConfirm() {
+      switch (this.typePopup) {
+        case ENUMPOPUP.Login:
+          this.goToLogin();
+          break;
+        default:
+          break;
+      }
+    },
+
+    getDepartment() {
+      var domain = localStorage.getItem("domain-db");
+      this.axios
+        .get(`http://localhost:56428/api/v2/Department/${domain}`)
+        .then((res) => {
+          if (res) {
+            this.departments = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+
+    /**
+     * Thực hiện hiển thị thông tin cá nhân khi vào trang home
+     */
+    setInfoSession() {
+      // Hiển thị lời chào
+      this.hello = "Xin chào " + localStorage.getItem("full-name");
+    },
+
+    /**
+     * Đi tới trang login
+     */
+    goToLogin() {
+      this.isShowWaring = false;
+      this.$router.push("/login");
+    },
+
     /**
      * Lấy thời gian hiện tại
      * Author: QVCANH (28/12/2022)
@@ -282,6 +350,49 @@ export default {
 
       // Tác giả câu nói
       author: "",
+
+      /**Hiển thị thông báo */
+      isShowWaring: false,
+
+      /**Tiêu đề thông báo */
+      titleWaring: "Thông báo",
+
+      /**Nội dung thông báo */
+      contentWaring: [],
+
+      /**Loại icon thông báo */
+      typeIcon: ENUMICON.Info,
+
+      /**Loại thông báo */
+      typePopup: ENUMPOPUP.Waring,
+
+      /**Lời chào */
+      hello: "",
+
+      /**Hiển thị popup thiết lập chung */
+      isShowSetting: false,
+
+      /**Hiển thị popup thông báo */
+      isShowNotification: false,
+
+      /**Hiển thị menu lọc thông báo */
+      isShowNotifiFilter: false,
+
+      /**Hiển thị menu thiết lập thông báo */
+      isShowNotifiSetting: false,
+
+      /**Hiển thị popup tìm kiếm */
+      isShowFilter: false,
+
+      /**Hiển thị popup thêm công việc */
+      isShowAddJob: false,
+
+      /**Danh sách phòn ban */
+      departments: [],
+
+      /**Dữ liệu enum */
+      ENUMICON,
+      ENUMPOPUP,
     };
   },
 };

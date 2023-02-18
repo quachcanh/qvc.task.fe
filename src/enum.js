@@ -23,3 +23,14 @@ export const ENUMICON = {
     /**Icon verify */
     Verify: 2
 };
+
+export const ENUMPOPUP = {
+    /**Popup cảnh báo */
+    Waring: 0,
+
+    /**Popup thông tin */
+    Info: 1,
+
+    /**Popup thông báo cần login */
+    Login: 2,
+};

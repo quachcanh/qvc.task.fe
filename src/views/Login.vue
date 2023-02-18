@@ -21,6 +21,7 @@
             class="input c-password"
             type="password"
             v-model="login.Password"
+            @keyup.enter="onLogin()"
           />
           <div class="icon icon-16 showpass"></div>
         </div>
@@ -161,6 +162,7 @@ export default {
       localStorage.setItem("user-name", res.data.Info.UserName);
       localStorage.setItem("full-name", res.data.Info.EmployeeName);
       localStorage.setItem("email", res.data.Info.Email);
+      localStorage.setItem("domain-db", res.data.Info.UserName + "_qvc_task");
     },
 
     /**
