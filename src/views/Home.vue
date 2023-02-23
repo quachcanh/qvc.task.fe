@@ -29,6 +29,8 @@
           :key="index"
           :name="item.DepartmentName"
           :id="item.DepartmentID"
+          :isloadproject="isLoadProject"
+          @onShowProject="onShowProject(item.DepartmentID, item.DepartmentName)"
         ></ListDepartment>
       </div>
     </div>
@@ -42,8 +44,13 @@
         </div>
         <div class="m-h-right">
           <div class="btn-header" style="margin-right: 10px">
-            <div class="icon__btn-header icon-add"></div>
-            <span class="btn-h-text">Thêm công việc</span>
+            <div
+              style="display: flex; align-items: center"
+              @click="isShowJobDetail = !isShowJobDetail"
+            >
+              <div class="icon__btn-header icon-add"></div>
+              <span class="btn-h-text">Thêm công việc</span>
+            </div>
             <div class="btn-h-layout"></div>
             <div class="btn-add-plus" @click="isShowAddJob = !isShowAddJob">
               <div class="icon-h-drop"></div>
@@ -58,7 +65,10 @@
                 <div class="item-icon icon icon-24 job-column"></div>
                 <div class="item-text">Thêm cột mốc công việc</div>
               </div>
-              <div class="p-a-item">
+              <div
+                class="p-a-item"
+                @click="onShowProject(undefined, undefined)"
+              >
                 <div class="item-icon icon icon-24 add-project-group"></div>
                 <div class="item-text">Thêm dự án/nhóm</div>
               </div>
@@ -221,6 +231,22 @@
   ></DepartmentDetail>
   <QvcLoading v-if="isShowLoading"></QvcLoading>
   <ToastMessage ref="toast"></ToastMessage>
+  <ProjectDetail
+    v-if="isShowProjectDetail"
+    @onClose="isShowProjectDetail = !isShowProjectDetail"
+    @onCancel="isShowProjectDetail = !isShowProjectDetail"
+    @onConfirm="insertProject"
+    :iddeprt="idDeprt"
+    :namedeprt="nameDeprt"
+  ></ProjectDetail>
+  <JobDetail
+    @onClose="isShowJobDetail = !isShowJobDetail"
+    @onCancel="isShowJobDetail = !isShowJobDetail"
+    @onConfirm="insertJob"
+    :idproject="idProjectSelected"
+    :nameproject="nameProjectSelected"
+    v-if="isShowJobDetail"
+  ></JobDetail>
 </template>
 
 <script>
@@ -229,9 +255,12 @@ import ListDepartment from "./../components/menu/list-department.vue";
 import DepartmentDetail from "./../components/form/department-detail.vue";
 import QvcLoading from "./../components/dialog/qvc-loading.vue";
 import ToastMessage from "./../components/toast/toast-message.vue";
+import ProjectDetail from "./../components/form/project-detail.vue";
+import JobDetail from "./../components/form/job-detail.vue";
 import { ENUMICON } from "@/enum.js";
 import { ENUMPOPUP } from "@/enum.js";
 import { ENUMTOAST } from "@/enum.js";
+import { RESAPI } from "@/res.js";
 export default {
   name: "HomeTask",
   components: {
@@ -240,6 +269,8 @@ export default {
     DepartmentDetail,
     QvcLoading,
     ToastMessage,
+    ProjectDetail,
+    JobDetail,
   },
   created() {
     // Kiểm tra xem đã login hay chưa?
@@ -263,6 +294,45 @@ export default {
     }
   },
   methods: {
+    insertJob(job, jobchild) {
+      // Bulid dữ liệu
+      var data = {
+        DataInsert: {
+          Data: job,
+          DBDomain: localStorage.getItem("domain-db"),
+        },
+        DataList: jobchild,
+      };
+      this.isShowLoading = true;
+      //Gọi API
+      this.axios
+        .post(RESAPI.InsertJob, data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowJobDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu công việc đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể thêm mới công. Vui lòng kiểm tra lại.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+    },
+
     /**Sự kiện khi ấn đồng ý */
     onConfirm() {
       switch (this.typePopup) {
@@ -274,6 +344,9 @@ export default {
       }
     },
 
+    /**
+     * Lấy danh sách phòng ban
+     */
     getDepartment() {
       var domain = localStorage.getItem("domain-db");
       this.axios
@@ -305,9 +378,9 @@ export default {
     },
 
     /**
-     * Tạo mã phòng ban random
+     * Tạo mã bản ghi random
      */
-    generateCodeDeprt() {
+    generateCodeDeprt(key) {
       // Generate a random integer between 0 and 99999
       const randomNumber = Math.floor(Math.random() * 100000);
 
@@ -315,7 +388,7 @@ export default {
       const randomCode = randomNumber.toString().padStart(5, "0");
 
       // Concatenate the code with the prefix 'DP'
-      const finalCode = "DP" + randomCode;
+      const finalCode = key + randomCode;
 
       return finalCode;
     },
@@ -338,7 +411,7 @@ export default {
       var data = {
         Data: {
           DepartmentName: deprt.DepartmentName,
-          DepartmentCode: this.generateCodeDeprt(),
+          DepartmentCode: this.generateCodeDeprt("DP"),
         },
         DBDomain: localStorage.getItem("domain-db"),
       };
@@ -406,6 +479,61 @@ export default {
     },
 
     /**
+     * Hiển thị form thêm dự án
+     * @param {*} iddeprt id phòng ban
+     */
+    onShowProject(iddeprt, namedeprt) {
+      if (!iddeprt) {
+        this.isShowAddJob = false;
+        this.isShowProjectDetail = true;
+      } else {
+        this.isShowProjectDetail = true;
+        this.idDeprt = iddeprt;
+        this.nameDeprt = namedeprt;
+      }
+    },
+
+    insertProject(project, listid) {
+      // Bulid dữ liệu
+      project.ProjectCode = this.generateCodeDeprt("PR");
+      var data = {
+        Data: project,
+        DBDomain: localStorage.getItem("domain-db"),
+      };
+      this.isShowLoading = true;
+      //Gọi API
+      this.axios
+        .post("http://localhost:56428/api/v2/Project/insert", data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowProjectDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu dự án đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            //Lấy lại danh sách dự án
+            this.isLoadProject = !this.isLoadProject;
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể thêm mới dự án. Vui lòng kiểm tra lại.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+      console.log(data, listid);
+    },
+
+    /**
      * API lấy câu nói hay
      * Author: QVCANH (28/12/2022)
      */
@@ -431,6 +559,12 @@ export default {
   },
   data() {
     return {
+      /**Id dự án đang chọn */
+      idProjectSelected: "",
+
+      /**Tên dự án đang chọn */
+      nameProjectSelected: "",
+
       // Thời gian hiện tại
       time: "",
 
@@ -485,10 +619,26 @@ export default {
       /**Hiển thị loading */
       isShowLoading: false,
 
+      /**Hiển thị form thêm dự án*/
+      isShowProjectDetail: false,
+
+      /**State lấy lại danh sách dự án */
+      isLoadProject: false,
+
+      /**ID phòng ban đang thao tác */
+      idDeprt: "",
+
+      /**Tên phòng ban đang tương tác */
+      nameDeprt: "",
+
+      /** Hiển thị form thêm công việc*/
+      isShowJobDetail: false,
+
       /**Dữ liệu enum */
       ENUMICON,
       ENUMPOPUP,
       ENUMTOAST,
+      RESAPI,
     };
   },
 };

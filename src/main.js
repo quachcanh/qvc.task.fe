@@ -7,6 +7,8 @@ import HomeTask from "./views/Home.vue";
 import LoginAccount from "./views/Login.vue";
 import RegisterAccount from "./views/Register.vue";
 import MyTask from "./views/tasks/MyTask.vue";
+import DepartmentTask from "./views/tasks/Department.vue";
+import ProjectTask from "./views/tasks/Project.vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 const routers = [
@@ -29,6 +31,16 @@ const routers = [
     path: "/mytask",
     name: "MyTask",
     component: MyTask,
+  },
+  {
+    path: "/department/:id",
+    name: "DepartmentTask",
+    component: DepartmentTask,
+  },
+  {
+    path: "/project/:id",
+    name: "ProjectTask",
+    component: ProjectTask,
   },
 ];
 

@@ -45,3 +45,42 @@ export const ENUMTOAST = {
     /**Toast thành công */
     Success:2,
 };
+
+export const ENUMJOBSTATUS = {
+    /**Cần thực hiện */
+    Todo: 0,
+
+    /**Đang thực hiện */
+    Processing: 1,
+    
+    /**Đã hoàn thành */
+    Complete:2,
+};
+
+export const ENUMJOBTAG = {
+    /**Quan trọng */
+    Important: 0,
+
+    /**Khẩn cấp */
+    Urgent: 1,
+};
+
+export const ENUMFILTER = {
+    /**7 ngày gần nhất */
+    Day7: 0,
+
+    /**30 ngày gần nhất */
+    Day30: 1,
+
+    /**Tuần này */
+    WeekNow:2,
+
+    /**Tuần trước */
+    WeekLast: 3,
+
+    /**Tháng này */
+    MonthNow: 4,
+
+    /**Tháng trước */
+    MonthLast:5,
+};

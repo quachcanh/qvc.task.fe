@@ -1,11 +1,21 @@
 <template>
-  <div class="s-l-item" @click="onClickDepartment(id)" :objid="id">
+  <div class="s-l-item" :objid="id">
     <div class="s-l-i-left">
-      <div ref="icon" class="l-i__icon icon-collapse" type="false"></div>
-      <div class="l-i__content-list list-content">{{ name }}</div>
+      <div
+        ref="icon"
+        class="l-i__icon icon-collapse"
+        type="false"
+        @click="onClickDepartment(id)"
+      ></div>
+      <div
+        @click.stop="navigatorDeprt(id)"
+        class="l-i__content-list list-content"
+      >
+        {{ name }}
+      </div>
     </div>
     <div class="s-l-i-right">
-      <div class="l-i__icon add-project" @click="onClickAdd"></div>
+      <div class="l-i__icon add-project" @click.stop="onClickAdd"></div>
       <div class="l-i__icon view-project" @click="onClickView"></div>
     </div>
   </div>
@@ -29,10 +39,24 @@
 <script>
 export default {
   name: "ListDepartment",
-  props: ["name", "id"],
+  props: ["name", "id", "isloadproject"],
+  emits: ["onShowProject"],
   components: {},
+  watch: {
+    isloadproject() {
+      this.getProjectById(this.id);
+    },
+  },
   created() {},
   methods: {
+    /**
+     * Thực hiện chuyển tới trạng phòng ban
+     * @param {*} id id phòng ban
+     */
+    navigatorDeprt(id) {
+      this.$router.push(`/department/${id}`);
+    },
+
     /**
      * Sự kiện click vào phòng ban để xem danh sách dự án
      * @param {*} id id của phòng ban
@@ -75,6 +99,14 @@ export default {
         .catch((res) => {
           console.log(res);
         });
+    },
+
+    /**
+     * Hiển thị form thêm dự án
+     *
+     */
+    onClickAdd() {
+      this.$emit("onShowProject");
     },
   },
   data() {

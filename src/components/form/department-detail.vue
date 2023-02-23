@@ -149,7 +149,7 @@ export default {
 }
 
 .item-content {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #4e4e4e;
   margin-bottom: 8px;
