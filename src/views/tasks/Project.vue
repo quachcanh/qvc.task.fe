@@ -21,10 +21,10 @@
             @onSelectData="onSelectDataDeprt"
           ></SelectDepartment>
           <div class="icon icon-24 icon-setting-deprt"></div>
-          <div class="tab-item tab-active" style="margin-left: 24px">
+          <div ref="tabtable" class="tab-item tab-active" style="margin-left: 24px" @click="toggleTab(0)">
             <div class="tab-item-text">Bảng</div>
           </div>
-          <div class="tab-item" style="margin-left: 24px">
+          <div ref="tablist" class="tab-item" style="margin-left: 24px" @click="toggleTab(1)">
             <div class="tab-item-text">Danh sách</div>
           </div>
         </div>
@@ -40,8 +40,8 @@
         </div>
       </div>
     </div>
-    <ProjectTable v-if="false"></ProjectTable>
-    <ProjectList></ProjectList>
+    <ProjectTable v-if="isShowTable"></ProjectTable>
+    <ProjectList v-if="isShowList"></ProjectList>
   </div>
 </template>
 <script>
@@ -55,9 +55,26 @@ export default {
   props: [],
   watch: {},
   created() {},
-  methods: {},
+  methods: {
+    toggleTab(index){
+      if(index==0){
+        this.isShowTable = true;
+        this.isShowList=false;
+        this.$refs.tabtable.classList.add("tab-active");
+        this.$refs.tablist.classList.remove("tab-active");
+      }else{
+        this.isShowTable = false;
+        this.isShowList=true;
+        this.$refs.tabtable.classList.remove("tab-active");
+        this.$refs.tablist.classList.add("tab-active");
+      }
+    }
+  },
   data() {
-    return {};
+    return {
+      isShowTable: true,
+      isShowList: false
+    };
   },
 };
 </script>

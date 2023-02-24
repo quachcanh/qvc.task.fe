@@ -194,6 +194,7 @@
             </div>
           </div>
           <div class="btn-icon-header btn-avatar"></div>
+          <div class="text-logout" @click="onLogout">Đăng xuất</div>
         </div>
       </div>
       <div class="m-content">
@@ -294,6 +295,10 @@ export default {
     }
   },
   methods: {
+    onLogout(){
+      localStorage.clear();
+      this.$router.push("/login");
+    },
     insertJob(job, jobchild) {
       // Bulid dữ liệu
       var data = {
@@ -644,4 +649,17 @@ export default {
 };
 </script>
 
-<style></style>
+<style scoped>
+.text-logout{
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 8px;
+  padding-left: 18px;
+  cursor: pointer;
+  user-select: none;
+}
+.text-logout:hover{
+  color: lightgreen;
+}
+</style>

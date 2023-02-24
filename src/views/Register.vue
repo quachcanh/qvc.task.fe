@@ -305,6 +305,14 @@ export default {
       }
     },
 
+    validatePass(){
+      if(this.employee.Password != this.employee.RePassword){
+        return false;
+      }else{
+        return true;
+      }
+    },
+
     /**
      * Thực hiện đăng ký tài khoản
      */
@@ -314,7 +322,12 @@ export default {
         this.error.push("Vui lòng nhập đầy đủ thông tin.");
         this.isShowWaring = true;
         return;
-      } else {
+      }else if(!this.validatePass){
+        this.error = [];
+        this.error.push("Mật khẩu không khớp. Vui lòng nhập lại!");
+        this.isShowWaring = true;
+      }
+      else {
         // Buld data
         this.employee.EmployeeCode = this.employee.UserName;
         this.employee.AccountType = 2;
