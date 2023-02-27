@@ -30,7 +30,7 @@ export default {
   right: 0;
   bottom: 0;
   background-color: #38383834;
-  z-index: 2;
+  z-index: 20;
 }
 
 .loading__content {

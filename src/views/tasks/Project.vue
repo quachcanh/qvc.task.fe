@@ -8,10 +8,10 @@
         </div>
         <div class="mt-layout"></div>
         <div class="h-left-tab">
-          <div class="btn-name-department">
-            <span class="btn-h-text" style="color: #000; font-size: 15px"
-              >Cá nhân</span
-            >
+          <div class="btn-name-department" @click="onShowPopListProject">
+            <span class="btn-h-text" style="color: #000; font-size: 15px">{{
+              project.ProjectName
+            }}</span>
             <div class="btn-add-plus">
               <div class="icon-h-drop drop-black"></div>
             </div>
@@ -20,13 +20,58 @@
             v-if="false"
             @onSelectData="onSelectDataDeprt"
           ></SelectDepartment>
-          <div class="icon icon-24 icon-setting-deprt"></div>
-          <div ref="tabtable" class="tab-item tab-active" style="margin-left: 24px" @click="toggleTab(0)">
+          <div
+            class="icon icon-24 icon-setting-deprt"
+            @click="isShowSetting = !isShowSetting"
+          ></div>
+          <!-- Popup hiển thị thiết lập dự án -->
+          <div
+            class="popup-combobox cbb-setting"
+            v-if="isShowSetting"
+            style="right: 158px"
+          >
+            <div class="p-s-content">
+              <div class="item-ccb" @click="onShowEditProject">
+                <span>Thông tin dự án/nhóm</span>
+              </div>
+              <div class="item-ccb" @click="onShowDialogDeleteProject">
+                <span>Xoá dự án/nhóm</span>
+              </div>
+            </div>
+          </div>
+          <!-- Popup hiển thị thiết lập dự án -->
+          <div
+            ref="tabtable"
+            class="tab-item tab-active"
+            style="margin-left: 24px"
+            @click="toggleTab(0)"
+          >
             <div class="tab-item-text">Bảng</div>
           </div>
-          <div ref="tablist" class="tab-item" style="margin-left: 24px" @click="toggleTab(1)">
+          <div
+            ref="tablist"
+            class="tab-item"
+            style="margin-left: 24px"
+            @click="toggleTab(1)"
+          >
             <div class="tab-item-text">Danh sách</div>
           </div>
+          <!-- Popup hiển thị chọn dự án -->
+          <div class="popup-combobox cbb-project" v-if="isShowPopListProject">
+            <div class="arror arrow-top" style="right: 185px"></div>
+            <div class="p-s-content">
+              <div
+                class="item-ccb"
+                @click="onSelecteProject(item.ProjectID, item.DepartmentID)"
+                :objid="item.ProjectID"
+                v-for="(item, index) in listProject"
+                :key="index"
+              >
+                <span>{{ item.ProjectName }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- Popup hiển thị chọn dự án -->
         </div>
       </div>
       <div class="mt-header-right">
@@ -40,46 +85,337 @@
         </div>
       </div>
     </div>
-    <ProjectTable v-if="isShowTable"></ProjectTable>
-    <ProjectList v-if="isShowList"></ProjectList>
+    <ProjectTable
+      :id="this.$route.query.projectid"
+      :state="this.$route.query.state"
+      v-if="isShowTable"
+      :isload="isLoadDataJob"
+    ></ProjectTable>
+    <ProjectList
+      :id="this.$route.query.projectid"
+      :state="this.$route.query.state"
+      :nameproject="project.ProjectName"
+      :isload="isLoadDataJob"
+      v-if="isShowList"
+    ></ProjectList>
   </div>
+  <ProjectDetail
+    :mode="ENUMMODE.Edit"
+    :data="project"
+    :stateedit="this.$route.query.state"
+    v-if="isShowProjectDetail"
+    @onClose="isShowProjectDetail = false"
+    @onCancel="isShowProjectDetail = false"
+    @onConfirm="insertProject"
+  ></ProjectDetail>
+  <ToastMessage ref="toast"></ToastMessage>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
+  <PopupNotification
+    :title="titleWarning"
+    :content="contentWaring"
+    :typeicon="typeIcon"
+    :showbtncancel="true"
+    @onClose="isShowWarning = false"
+    @onConfirm="onDeleteProject"
+    @onCancel="isShowWarning = false"
+    v-if="isShowWarning"
+  ></PopupNotification>
 </template>
 <script>
 import SelectDepartment from "./../../components/popup/select-department.vue";
 import ProjectTable from "./../../components/project/project-table.vue";
 import ProjectList from "./../../components/project/project-list.vue";
+import { ENUMSTATE } from "@/enum";
+import { ENUMMODE } from "@/enum.js";
+import { ENUMTOAST } from "@/enum.js";
+import { ENUMICON } from "@/enum.js";
+import ProjectDetail from "./../../components/form/project-detail.vue";
+import ToastMessage from "./../../components/toast/toast-message.vue";
+import QvcLoading from "./../../components/dialog/qvc-loading.vue";
+import PopupNotification from "./../../components/popup/popup-notification.vue";
 export default {
   name: "ProjectTask",
-  components: { SelectDepartment, ProjectTable, ProjectList },
+  components: {
+    SelectDepartment,
+    ProjectTable,
+    ProjectList,
+    ProjectDetail,
+    ToastMessage,
+    QvcLoading,
+    PopupNotification,
+  },
   emits: [],
   props: [],
   watch: {},
-  created() {},
+  mounted() {
+    this.getProjectById();
+  },
+  created() {
+    this.getProjectById();
+    this.checkState();
+  },
   methods: {
-    toggleTab(index){
-      if(index==0){
+    insertProject(project, listid) {
+      // Bulid dữ liệu
+      var data = {
+        Data: project,
+        DBDomain:
+          this.state == ENUMSTATE.CaNhan
+            ? localStorage.getItem("domain-db")
+            : localStorage.getItem("domain-company"),
+      };
+      data.Data.ModifiedBy = localStorage.getItem("full-name");
+      this.isShowLoading = true;
+      //Gọi API
+      this.axios
+        .post("http://localhost:56428/api/v2/Project/updateby-id", data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowProjectDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu dự án đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            //Lấy lại danh sách dự án
+            this.isLoadProject = !this.isLoadProject;
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể thêm mới dự án. Vui lòng kiểm tra lại.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+      console.log(project, listid);
+    },
+    onShowEditProject() {
+      this.isShowSetting = false;
+      this.isShowProjectDetail = true;
+    },
+
+    checkState() {
+      if (
+        !localStorage.getItem("domain-company") ||
+        localStorage.getItem("domain-company") == "null"
+      ) {
+        this.state = ENUMSTATE.CaNhan;
+        // Dạng cá nhân
+      } else {
+        //Dạng công ty
+        this.state = ENUMSTATE.CongTy;
+      }
+    },
+    getDataUrl() {
+      var data = {
+        Projectid: this.$route.query.projectid,
+        Departid: this.$route.query.departid,
+        State: this.$route.query.state,
+      };
+      return data;
+    },
+    getDataLocal() {
+      var data = {
+        Dbdomain: localStorage.getItem("domain-db"),
+        Dbcompany: localStorage.getItem("domain-company"),
+        Role: parseInt(localStorage.getItem("role")),
+        Fullname: localStorage.getItem("full-name"),
+      };
+      return data;
+    },
+    onShowPopListProject() {
+      if (this.isShowPopListProject) {
+        // Đóng
+        this.isShowPopListProject = false;
+      } else {
+        this.isShowPopListProject = true;
+        this.getAllProjectByIdDepart();
+      }
+    },
+    getAllProjectByIdDepart() {
+      var dataUrl = this.getDataUrl();
+      var dataLocal = this.getDataLocal();
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Project/getall-byid?id=${
+            dataUrl.Departid
+          }&domain=${
+            dataUrl.State == ENUMSTATE.CaNhan
+              ? dataLocal.Dbdomain
+              : dataLocal.Dbcompany
+          }`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.listProject = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    onSelecteProject(id, iddepart) {
+      // Đóng
+      this.isShowPopListProject = false;
+      var dataUrl = this.getDataUrl();
+      var dataLocal = this.getDataLocal();
+      this.$router.push({
+        path: "/project",
+        query: {
+          projectid: id,
+          departid: iddepart,
+          state: dataUrl.State,
+        },
+      });
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Project/getby-id?id=${id}&domaindb=${
+            dataUrl.State == ENUMSTATE.CaNhan
+              ? dataLocal.Dbdomain
+              : dataLocal.Dbcompany
+          }`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.project = res.data;
+            this.isLoadDataJob = !this.isLoadDataJob;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+
+    onShowDialogDeleteProject() {
+      // Hiển thị thông báo đăng nhập
+      this.contentWaring = [];
+      this.contentWaring.push(
+        `Bạn có muốn xoá dự án ${this.project.ProjectName} không?`
+      );
+      this.titleWarning = "Thông báo";
+      this.typeIcon = ENUMICON.Waring;
+      this.isShowWarning = true;
+      this.isShowSetting = false;
+    },
+    onDeleteProject() {
+      var db =
+        this.state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
+
+      this.isShowLoading = true;
+      this.axios
+        .delete(
+          `http://localhost:56428/api/v2/Project/deleteby-id?id=${this.project.ProjectID}&db=${db}`
+        )
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowWarning = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            this.$router.push("/");
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể cập nhật dữ liệu.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+    },
+
+    getProjectById() {
+      var dataUrl = this.getDataUrl();
+      var dataLocal = this.getDataLocal();
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Project/getby-id?id=${
+            dataUrl.Projectid
+          }&domaindb=${
+            dataUrl.State == ENUMSTATE.CaNhan
+              ? dataLocal.Dbdomain
+              : dataLocal.Dbcompany
+          }`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.project = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    toggleTab(index) {
+      if (index == 0) {
         this.isShowTable = true;
-        this.isShowList=false;
+        this.isShowList = false;
         this.$refs.tabtable.classList.add("tab-active");
         this.$refs.tablist.classList.remove("tab-active");
-      }else{
+      } else {
         this.isShowTable = false;
-        this.isShowList=true;
+        this.isShowList = true;
         this.$refs.tabtable.classList.remove("tab-active");
         this.$refs.tablist.classList.add("tab-active");
       }
-    }
+    },
   },
   data() {
     return {
+      contentWaring: [],
+      isShowProjectDetail: false,
+      isShowSetting: false,
       isShowTable: true,
-      isShowList: false
+      isShowList: false,
+      project: {},
+      listProject: [],
+      isShowPopListProject: false,
+      textRole: {},
+      keyRole: {},
+      isShowLoading: false,
+      state: ENUMSTATE.CaNhan,
+      ENUMMODE,
+      ENUMSTATE,
+      ENUMTOAST,
+      isShowWarning: false,
+      titleWarning: "Thông báo",
+      typeIcon: ENUMICON.Waring,
+      isLoadDataJob: false,
     };
   },
 };
 </script>
 
 <style scoped>
+.cbb-setting {
+  position: absolute;
+  top: 48px;
+  left: 0px;
+}
+.cbb-project {
+  top: 48px;
+  left: -70px;
+  z-index: 20;
+}
 .my-task-content {
   width: calc(100% - 36px);
   height: auto !important;
@@ -189,6 +525,7 @@ export default {
 }
 .h-left-tab {
   align-items: center;
+  position: relative;
 }
 
 .popup-deprt {
@@ -203,6 +540,8 @@ export default {
 .icon-setting-deprt {
   background-image: url(./../../assets/img/setting-deprt.svg);
   margin-left: 12px;
+  cursor: pointer;
+  user-select: none;
 }
 .icon-white {
   background-image: url(./../../assets/img/white.svg);

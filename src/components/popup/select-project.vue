@@ -15,6 +15,7 @@
         :key="index"
         :name="item.DepartmentName"
         :id="item.DepartmentID"
+        :idcompany="item.CompanyID"
         @onSelectProject="onSelectProject"
       ></ListProject>
     </div>
@@ -28,7 +29,7 @@ export default {
   components: { ListProject },
   emits: ["onSelectProject"],
   created() {
-    this.onGetAllDepartment();
+    this.getDepartment();
   },
   methods: {
     /**
@@ -45,6 +46,29 @@ export default {
       var domain = localStorage.getItem("domain-db");
       this.axios
         .get(`http://localhost:56428/api/v2/Department/${domain}`)
+        .then((res) => {
+          if (res) {
+            this.departments = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+
+    getDepartment() {
+      // Chuẩn bị dữ liệu
+      var data = {
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+      };
+
+      this.axios
+        .post(
+          "http://localhost:56428/api/v2/Department/getall-department",
+          data
+        )
         .then((res) => {
           if (res) {
             this.departments = res.data;

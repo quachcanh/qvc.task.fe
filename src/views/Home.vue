@@ -29,8 +29,15 @@
           :key="index"
           :name="item.DepartmentName"
           :id="item.DepartmentID"
+          :companyid="item.CompanyID"
           :isloadproject="isLoadProject"
-          @onShowProject="onShowProject(item.DepartmentID, item.DepartmentName)"
+          @onShowProject="
+            onShowProject(
+              item.DepartmentID,
+              item.DepartmentName,
+              item.CompanyID
+            )
+          "
         ></ListDepartment>
       </div>
     </div>
@@ -67,23 +74,32 @@
               </div>
               <div
                 class="p-a-item"
-                @click="onShowProject(undefined, undefined)"
+                v-if="keyRole.isShowAddProject"
+                @click="onShowProject(undefined, undefined, undefined)"
               >
                 <div class="item-icon icon icon-24 add-project-group"></div>
                 <div class="item-text">Thêm dự án/nhóm</div>
               </div>
-              <div class="p-a-item" @click="onShowFormDeprt">
+              <div
+                class="p-a-item"
+                @click="onShowFormDeprt"
+                v-if="keyRole.isShowAddDepart"
+              >
                 <div class="item-icon icon icon-24 add-deprt"></div>
-                <div class="item-text">Thêm phòng ban</div>
+                <div class="item-text">{{ textRole.depart }}</div>
               </div>
-              <div class="p-a-item">
+              <div
+                class="p-a-item"
+                @click="onShowCompanyDetail"
+                v-if="keyRole.isShowAddCompay"
+              >
                 <div class="item-icon icon icon-24 add-uo"></div>
-                <div class="item-text">Thêm phòng ban theo cơ cấu tổ chức</div>
+                <div class="item-text">Tạo tổ chức (công ty/doanh nghiệp)</div>
               </div>
-              <div class="p-a-item">
+              <div class="p-a-item" v-if="keyRole.isShowAddEmp">
                 <div class="item-icon icon icon-24 add-user"></div>
                 <div class="item-text">
-                  Thêm nhanh nhân viên vào phòng ban/dự án
+                  {{ textRole.addemp }}
                 </div>
               </div>
             </div>
@@ -239,6 +255,7 @@
     @onConfirm="insertProject"
     :iddeprt="idDeprt"
     :namedeprt="nameDeprt"
+    :idcompany="idCompany"
   ></ProjectDetail>
   <JobDetail
     @onClose="isShowJobDetail = !isShowJobDetail"
@@ -248,9 +265,16 @@
     :nameproject="nameProjectSelected"
     v-if="isShowJobDetail"
   ></JobDetail>
+  <CompanyDetail
+    v-if="isShowCompanyDetail"
+    @onConfirm="insertCompany"
+    @onClose="isShowCompanyDetail = false"
+    @onCancel="isShowCompanyDetail = false"
+  ></CompanyDetail>
 </template>
 
 <script>
+import CompanyDetail from "./../components/form/company-detail.vue";
 import PopupNotification from "./../components/popup/popup-notification.vue";
 import ListDepartment from "./../components/menu/list-department.vue";
 import DepartmentDetail from "./../components/form/department-detail.vue";
@@ -261,11 +285,13 @@ import JobDetail from "./../components/form/job-detail.vue";
 import { ENUMICON } from "@/enum.js";
 import { ENUMPOPUP } from "@/enum.js";
 import { ENUMTOAST } from "@/enum.js";
+import { ENUMSTATE } from "@/enum.js";
 import { RESAPI } from "@/res.js";
 export default {
   name: "HomeTask",
   components: {
     PopupNotification,
+    CompanyDetail,
     ListDepartment,
     DepartmentDetail,
     QvcLoading,
@@ -288,6 +314,10 @@ export default {
       // Hiển thị thông tin người dùng
       this.setInfoSession();
 
+      // Kiểm tra quyền để hiển thị chức năng
+      this.checkLeve();
+      // Kiểm tra là Cá nhân hay công ty
+      this.checkState();
       // Hiển thị danh sách phòng ban
       this.getDepartment();
       this.showTime();
@@ -295,16 +325,128 @@ export default {
     }
   },
   methods: {
-    onLogout(){
+    insertEmpToCompay(data) {
+      this.axios
+        .post("http://localhost:56428/api/v2/Employee/insert", data)
+        .then((res) => {
+          console.log(res);
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    insertCompany(data, emps, role) {
+      var datainput = {
+        Data: {
+          CompanyCode: this.generateCodeDeprt("CP"),
+          CompanyName: data.CompanyName,
+          UserName: localStorage.getItem("user-name"),
+        },
+        DBDomain: "qvc_task_info",
+      };
+      this.isShowLoading = true;
+      this.axios
+        .post("http://localhost:56428/api/v2/Company/insert", datainput)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowCompanyDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+          }, 500);
+          // Thực hiện thêm mới nhân viên vào cong ty
+          //Buldi dữ liệu
+          for (const emp of emps) {
+            var data = {
+              Data: emp,
+              DBDomain: localStorage.getItem("domain-db"),
+            };
+            data.Data.Role = role;
+            this.insertEmpToCompay(data);
+          }
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể thêm mới công ty. Vui lòng kiểm tra lại.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+    },
+    checkState() {
+      if (
+        !localStorage.getItem("domain-company") ||
+        localStorage.getItem("domain-company") == "null"
+      ) {
+        this.state = ENUMSTATE.CaNhan;
+        // Dạng cá nhân
+        this.textRole.addemp = "Thêm thành viên vào danh mục/dự án";
+        this.textRole.depart = "Thêm danh mục công việc";
+        this.keyRole.isShowAddEmp = false;
+      } else {
+        //Dạng công ty
+        this.state = ENUMSTATE.CongTy;
+        this.textRole.addemp = "Thêm nhanh thành viên vào phòng ban/dự án";
+        this.textRole.depart = "Thêm phòng ban";
+        this.keyRole.isShowAddEmp = true;
+      }
+    },
+    checkLeve() {
+      switch (parseInt(localStorage.getItem("role"))) {
+        case 0:
+          break;
+        case 1:
+          this.keyRole.isShowAddCompay = false;
+          break;
+        case 2:
+          this.keyRole.isShowAddProject = false;
+          this.keyRole.isShowAddDepart = false;
+          this.keyRole.isShowAddEmp = false;
+          this.keyRole.isShowAddCompay = false;
+          break;
+      }
+    },
+    onShowCompanyDetail() {
+      this.isShowAddJob = false;
+      this.isShowCompanyDetail = true;
+    },
+    onLogout() {
       localStorage.clear();
       this.$router.push("/login");
     },
+    insertAssign(assign, db) {
+      var data = {
+        Data: assign,
+        DBDomain: db,
+      };
+      this.axios
+        .post("http://localhost:56428/api/v2/Assign/insert", data)
+        .then(() => {})
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+
     insertJob(job, jobchild) {
       // Bulid dữ liệu
+      var state = parseInt(localStorage.getItem("state"));
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       var data = {
         DataInsert: {
           Data: job,
-          DBDomain: localStorage.getItem("domain-db"),
+          DBDomain: db,
         },
         DataList: jobchild,
       };
@@ -323,6 +465,24 @@ export default {
               ENUMTOAST.Success
             );
           }, 500);
+          //Buli dữ liệu giao việc
+          if (!job.EmployeeID || !job.EmployeeName) {
+            var assign = {
+              CreatedBy: localStorage.getItem("full-name"),
+              EmployeeID: localStorage.getItem("userid"),
+              JobID: job.JobID,
+            };
+            var bd2 = localStorage.getItem("domain-db");
+            this.insertAssign(assign, bd2);
+          } else {
+            var assigns = {
+              CreatedBy: localStorage.getItem("full-name"),
+              EmployeeID: job.EmployeeID,
+              JobID: job.JobID,
+            };
+            var db = localStorage.getItem("domain-company");
+            this.insertAssign(assigns, db);
+          }
         })
         .catch((res) => {
           setTimeout(() => {
@@ -353,9 +513,18 @@ export default {
      * Lấy danh sách phòng ban
      */
     getDepartment() {
-      var domain = localStorage.getItem("domain-db");
+      // Chuẩn bị dữ liệu
+      var data = {
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: this.state,
+      };
+
       this.axios
-        .get(`http://localhost:56428/api/v2/Department/${domain}`)
+        .post(
+          "http://localhost:56428/api/v2/Department/getall-department",
+          data
+        )
         .then((res) => {
           if (res) {
             this.departments = res.data;
@@ -411,14 +580,22 @@ export default {
      * @param {*} deprt thông tin phòng ban
      * @param {*} listid danh sách id nhân viên
      */
-    insertDepartment(deprt, listid) {
+    insertDepartment(deprt, emps, role) {
       // Bulid dữ liệu
       var data = {
         Data: {
           DepartmentName: deprt.DepartmentName,
           DepartmentCode: this.generateCodeDeprt("DP"),
+          CompanyID:
+            this.state == ENUMSTATE.CongTy
+              ? localStorage.getItem("company-id")
+              : null,
+          CreatedBy: localStorage.getItem("full-name"),
         },
-        DBDomain: localStorage.getItem("domain-db"),
+        DBDomain:
+          this.state == ENUMSTATE.CaNhan
+            ? localStorage.getItem("domain-db")
+            : localStorage.getItem("domain-company"),
       };
       this.isShowLoading = true;
       //Gọi API
@@ -436,6 +613,16 @@ export default {
             );
             //Lấy lại danh sách phòng ban
             this.getDepartment();
+            // Thực hiện thêm mới nhân viên vào cong ty
+            //Buldi dữ liệu
+            for (const emp of emps) {
+              var data = {
+                Data: emp,
+                DBDomain: localStorage.getItem("domain-company"),
+              };
+              data.Data.Role = role;
+              this.insertEmpToCompay(data);
+            }
           }, 500);
         })
         .catch((res) => {
@@ -450,7 +637,6 @@ export default {
             console.log(res);
           }, 500);
         });
-      console.log(listid);
     },
 
     /**
@@ -487,7 +673,7 @@ export default {
      * Hiển thị form thêm dự án
      * @param {*} iddeprt id phòng ban
      */
-    onShowProject(iddeprt, namedeprt) {
+    onShowProject(iddeprt, namedeprt, idcompany) {
       if (!iddeprt) {
         this.isShowAddJob = false;
         this.isShowProjectDetail = true;
@@ -495,16 +681,20 @@ export default {
         this.isShowProjectDetail = true;
         this.idDeprt = iddeprt;
         this.nameDeprt = namedeprt;
+        this.idCompany = idcompany;
       }
     },
 
-    insertProject(project, listid) {
+    insertProject(project, listid, companyid) {
       // Bulid dữ liệu
       project.ProjectCode = this.generateCodeDeprt("PR");
       var data = {
         Data: project,
-        DBDomain: localStorage.getItem("domain-db"),
+        DBDomain: !companyid
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company"),
       };
+      data.Data.CreatedBy = localStorage.getItem("full-name");
       this.isShowLoading = true;
       //Gọi API
       this.axios
@@ -535,7 +725,7 @@ export default {
             console.log(res);
           }, 500);
         });
-      console.log(data, listid);
+      console.log(listid);
     },
 
     /**
@@ -564,6 +754,18 @@ export default {
   },
   data() {
     return {
+      keyRole: {
+        isShowAddProject: true,
+        isShowAddDepart: true,
+        isShowAddCompay: true,
+        isShowAddEmp: true,
+      },
+      textRole: {
+        depart: "Thêm danh mục công việc",
+        addemp: "Thêm thành viên vào danh mục/dự án",
+      },
+      idCompany: "",
+      isShowCompanyDetail: false,
       /**Id dự án đang chọn */
       idProjectSelected: "",
 
@@ -638,19 +840,21 @@ export default {
 
       /** Hiển thị form thêm công việc*/
       isShowJobDetail: false,
+      state: ENUMSTATE.CaNhan,
 
       /**Dữ liệu enum */
       ENUMICON,
       ENUMPOPUP,
       ENUMTOAST,
       RESAPI,
+      ENUMSTATE,
     };
   },
 };
 </script>
 
 <style scoped>
-.text-logout{
+.text-logout {
   color: #fff;
   font-size: 15px;
   font-weight: 600;
@@ -659,7 +863,7 @@ export default {
   cursor: pointer;
   user-select: none;
 }
-.text-logout:hover{
+.text-logout:hover {
   color: lightgreen;
 }
 </style>

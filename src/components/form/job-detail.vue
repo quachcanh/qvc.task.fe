@@ -6,13 +6,31 @@
       <div class="form-header header-line">
         <div class="header-left">
           <!-- Modal header -->
-          <div class="title">Thêm mới công việc</div>
+          <div class="title">{{ textRole.title }}</div>
         </div>
         <div class="header-right">
           <div class="icon icon-24 icon-list-job"></div>
           <div class="icon icon-24 icon-attr-file"></div>
           <div class="icon icon-24 icon-tag"></div>
+          <div
+            class="icon icon-24 icon-bacham"
+            v-if="isShowIconBaCham"
+            @click="isShowOption = !isShowOption"
+          ></div>
           <span class="icon icon-24 close" @click="onClose"></span>
+          <div
+            class="popup-combobox popup-select-status"
+            style="top: 30px"
+            v-if="isShowOption"
+          >
+            <div class="arror arrow-top" style="right: 74px"></div>
+            <div class="p-s-content">
+              <div class="item-ccb" @click="onShowDeleteJob">
+                <span>Xoá công việc</span>
+                <div class="icon icon-cbb"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Phần nội dung form -->
@@ -62,6 +80,7 @@
             <div class="item-right">
               <div
                 ref="important"
+                id="important"
                 class="icon icon-16 icon-important"
                 selected="false"
                 @click="onSelectTag($event, ENUMJOBTAG.Important)"
@@ -227,7 +246,7 @@
             </div>
           </div>
         </div>
-        <div class="f-body-right">
+        <div class="f-body-right" v-if="isShowMenu">
           <div class="item-option">
             <div class="icon icon-24 icon-approval"></div>
             <div class="option-text">Phê duyệt</div>
@@ -253,6 +272,18 @@
       </div>
     </div>
   </div>
+  <PopupNotification
+    :title="titleWarning"
+    :content="contentWaring"
+    :typeicon="typeIcon"
+    :showbtncancel="true"
+    @onClose="isShowWarning = false"
+    @onConfirm="onDeleteJob"
+    @onCancel="isShowWarning = false"
+    v-if="isShowWarning"
+  ></PopupNotification>
+  <ToastMessage ref="toast"></ToastMessage>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
 </template>
 
 <script>
@@ -262,16 +293,26 @@ import SelectPopoverAssign from "./../popup/select-popover-assign.vue";
 import SelectDueDate from "./../popup/select-due-date.vue";
 import { ENUMJOBSTATUS } from "@/enum.js";
 import { ENUMJOBTAG } from "@/enum.js";
+import { ENUMMODE } from "@/enum.js";
+import { ENUMSTATE } from "@/enum.js";
 const { v4: uuidv4 } = require("uuid");
+import { ENUMICON } from "@/enum.js";
+import { ENUMTOAST } from "@/enum.js";
+import QvcLoading from "./../dialog/qvc-loading.vue";
+import PopupNotification from "./../popup/popup-notification.vue";
+import ToastMessage from "./../toast/toast-message.vue";
 export default {
   name: "JobDetail",
-  props: ["idproject", "nameproject"],
-  emits: ["onClose", "onCancel", "onConfirm"],
+  props: ["idproject", "nameproject", "data", "state", "mode"],
+  emits: ["onClose", "onCancel", "onConfirm", "onCloseDetail"],
   components: {
     SelectProject,
     SelectStatusJob,
     SelectPopoverAssign,
     SelectDueDate,
+    PopupNotification,
+    ToastMessage,
+    QvcLoading,
   },
   watch: {
     countJobChild() {
@@ -281,10 +322,104 @@ export default {
       }
     },
   },
+  mounted() {
+    if (this.mode == ENUMMODE.Edit) {
+      if (this.job.JobTag == ENUMJOBTAG.Important) {
+        this.isShowJobImportant = true;
+        var el = this.$refs.important;
+        el.attributes["selected"].value = "true";
+        el.classList.remove("icon-important");
+        el.classList.add("icon-information-circle-orange");
+      } else if (this.job.JobTag == ENUMJOBTAG.Urgent) {
+        this.isShowJobUrgent = true;
+        var ele = this.$refs.instant;
+        ele.attributes["selected"].value = "true";
+        ele.classList.remove("icon-instant");
+        ele.classList.add("icon-lightning-circle-red");
+      }
+    }
+  },
   created() {
+    if (parseInt(localStorage.getItem("state")) == ENUMSTATE.CaNhan) {
+      this.isShowMenu = false;
+    } else {
+      this.isShowMenu = true;
+    }
+    if (this.mode == ENUMMODE.Edit) {
+      this.textRole.title = "Chỉnh sửa công việc";
+      this.job = this.data;
+      this.job.ProjectName = this.nameproject;
+      this.isShowBtnJobChild = false;
+      this.isShowIconBaCham = true;
+      // Binding tag công việc
+      if (!this.job.StartTime && !this.job.EndDate) {
+        this.isShowTimeDefault = true;
+      } else {
+        this.isShowTimeDefault = false;
+        this.isShowTimeSetup = true;
+        this.onBindingDateTime(this.job.StartTime, this.job.EndTime);
+        if (this.job.Description) {
+          this.isShowAddDescription = true;
+        }
+      }
+    } else {
+      this.textRole.title = "Thêm mới công việc";
+    }
     this.$nextTick(() => this.$refs.namejob.focus());
   },
   methods: {
+    onDeleteJob() {
+      this.isShowWarning = false;
+      var db = "";
+      if (this.state == ENUMSTATE.CaNhan) {
+        db = localStorage.getItem("domain-db");
+      } else {
+        db = localStorage.getItem("domain-company");
+      }
+      this.isShowLoading = true;
+      this.axios
+        .delete(
+          `http://localhost:56428/api/v2/Job/deleteby-id?id=${this.job.JobID}&db=${db}`
+        )
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowWarning = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            this.$emit("onCloseDetail");
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể cập nhật dữ liệu.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+    },
+
+    onShowDeleteJob() {
+      // Hiển thị thông báo đăng nhập
+      this.contentWaring = [];
+
+      this.contentWaring.push(
+        `Bạn có muốn xoá công việc ${this.job.JobName} không?`
+      );
+      this.titleWarning = "Thông báo";
+      this.typeIcon = ENUMICON.Waring;
+      this.isShowWarning = true;
+      this.isShowOption = false;
+    },
     /**
      * Thực hiện lấy danh sách công việc con
      */
@@ -420,12 +555,58 @@ export default {
         this.isShowTimeSetup = true;
       }
       // Ghép dữ liệu ngày và giờ
-      this.job.StartTime = new Date(
-        this.timeJob.StartDate + "T" + this.timeJob.StartTime + ":00"
-      );
-      this.job.EndTime = new Date(
-        this.timeJob.EndDate + "T" + this.timeJob.EndTime + ":00"
-      );
+      if (this.timeJob.StartDate && this.timeJob.StartTime) {
+        this.job.StartTime = new Date(
+          this.timeJob.StartDate + "T" + this.timeJob.StartTime + ":00"
+        );
+      }
+      if (this.timeJob.EndDate && this.timeJob.EndTime) {
+        this.job.EndTime = new Date(
+          this.timeJob.EndDate + "T" + this.timeJob.EndTime + ":00"
+        );
+      }
+    },
+
+    onBindingDateTime(start, end) {
+      const startobj = new Date(start);
+
+      const year = startobj.getFullYear();
+      const month = startobj.getMonth() + 1;
+      const day = startobj.getDate();
+
+      const hours = startobj.getHours();
+      const minutes = startobj.getMinutes();
+      if (
+        `${day}/${month}/${year}` == "1/1/1" ||
+        `${day}/${month}/${year}` == "1/1/1970"
+      ) {
+        this.timeJob.StartDate = ``;
+        this.timeJob.StartTime = ``;
+      } else {
+        // Ghép dữ liệu ngày và giờ
+        this.timeJob.StartDate = `${day}/${month}/${year}`;
+        this.timeJob.StartTime = `${hours}:${minutes}`;
+      }
+
+      const endobj = new Date(end);
+      const eyear = endobj.getFullYear();
+      const emonth = endobj.getMonth() + 1;
+      const eday = endobj.getDate();
+
+      const ehours = endobj.getHours();
+      const eminutes = endobj.getMinutes();
+
+      if (
+        `${eday}/${emonth}/${eyear}` == "1/1/1" ||
+        `${eday}/${emonth}/${eyear}` == "1/1/1970"
+      ) {
+        this.timeJob.EndDate = ``;
+        this.timeJob.EndTime = ``;
+      } else {
+        // Ghép dữ liệu ngày và giờ
+        this.timeJob.EndDate = `${eday}/${emonth}/${eyear}`;
+        this.timeJob.EndTime = `${ehours}:${eminutes}`;
+      }
     },
 
     /**
@@ -443,10 +624,10 @@ export default {
         this.isShowSelectAssign = true;
       } else {
         // Gán lại dữ liệu
-        this.job.EmployeeID = null;
-        this.job.EmployeeName = null;
-        this.isShowPeopleAssign = true;
-        this.isShowSelectAssign = false;
+        this.job.EmployeeID = data.EmployeeID;
+        this.job.EmployeeName = data.EmployeeName;
+        this.isShowPeopleAssign = false;
+        this.isShowSelectAssign = true;
       }
     },
 
@@ -531,21 +712,33 @@ export default {
      * Sự kiện ấn đồng ý
      */
     onConfirm() {
-      // Tại id công việc
-      this.job.JobID = uuidv4();
-      // Tạo mã công việc
-      this.job.JobCode = this.generateCodeDeprt("JB");
-
-      // Gán lại id công việc cha
-      for (const job of this.jobChilds) {
-        job.ParentID = this.job.JobID;
-        job.JobCode = this.generateCodeDeprt("JB");
+      if (this.mode == ENUMMODE.Edit) {
+        // Gán lại id công việc cha
+        for (const job of this.jobChilds) {
+          job.ParentID = this.job.JobID;
+          job.JobCode = this.generateCodeDeprt("JB");
+        }
+      } else {
+        // Tại id công việc
+        this.job.JobID = uuidv4();
+        // Tạo mã công việc
+        this.job.JobCode = this.generateCodeDeprt("JB");
+        // Gán lại id công việc cha
+        for (const job of this.jobChilds) {
+          job.ParentID = this.job.JobID;
+          job.JobCode = this.generateCodeDeprt("JB");
+        }
       }
       this.$emit("onConfirm", this.job, this.jobChilds);
     },
   },
   data() {
     return {
+      isShowLoading: false,
+      isShowOption: false,
+      contentWaring: [],
+      textRole: {},
+      keyRole: {},
       /**Hiển thị thời gian mặc đinh */
       isShowTimeDefault: true,
 
@@ -604,15 +797,24 @@ export default {
 
       /**Hiển thị tag khẩn cấp */
       isShowJobUrgent: false,
+      isShowMenu: false,
 
       /**Dữ liệu enum */
       ENUMJOBSTATUS,
       ENUMJOBTAG,
+      ENUMMODE,
+      ENUMSTATE,
+      isShowIconBaCham: false,
+      isShowWarning: false,
+      typeIcon: ENUMICON.Waring,
     };
   },
 };
 </script>
 <style scoped>
+.icon-bacham {
+  background-image: url(./../../assets/img/bacham.svg);
+}
 .assign-item {
   display: flex;
   align-items: center;
@@ -636,7 +838,7 @@ export default {
 /* The Modal (background) */
 .modal {
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 10; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */
@@ -935,7 +1137,9 @@ textarea::placeholder {
 .icon-attr-file:hover,
 .icon-attr-file:focus,
 .icon-tag:hover,
-.icon-tag:focus {
+.icon-tag:focus,
+.icon-bacham:hover,
+.icon-bacham:focus {
   filter: invert(57%) sepia(50%) saturate(596%) hue-rotate(64deg)
     brightness(97%) contrast(91%);
   text-decoration: none;
@@ -964,5 +1168,6 @@ textarea::placeholder {
 .header-right {
   display: flex;
   align-items: center;
+  position: relative;
 }
 </style>

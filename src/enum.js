@@ -84,3 +84,31 @@ export const ENUMFILTER = {
     /**Tháng trước */
     MonthLast:5,
 };
+
+export const ENUMSTATE = {
+    /**Cá nhân */
+    CaNhan: 0,
+
+    /**Công ty */
+    CongTy: 1,
+
+};
+
+export const ENUMMODE = {
+    /**Cá nhân */
+    Add: 0,
+
+    /**Công ty */
+    Edit: 1,
+
+};
+
+export const ENUMROLE = {
+    /**Cá nhân */
+    Leve0: 0,
+
+    /**Công ty */
+    Leve1: 1,
+    Leve2: 2,
+
+};

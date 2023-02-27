@@ -33,12 +33,12 @@ const routers = [
     component: MyTask,
   },
   {
-    path: "/department/:id",
+    path: "/department",
     name: "DepartmentTask",
     component: DepartmentTask,
   },
   {
-    path: "/project/:id",
+    path: "/project",
     name: "ProjectTask",
     component: ProjectTask,
   },

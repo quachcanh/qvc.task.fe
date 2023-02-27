@@ -228,62 +228,112 @@
           <thead>
             <tr>
               <th>Tên công việc</th>
-              <th>Phòng ban</th>
+              <th v-if="false">Phòng ban</th>
               <th>Dự án/Nhóm</th>
               <th>Thời điểm bắt đầu</th>
               <th>Hạn hoàn thành</th>
               <th>Tình trạng</th>
-              <th>Trạng thái hoạt động</th>
-              <th>Tiến độ</th>
+              <th v-if="false">Trạng thái hoạt động</th>
+              <th v-if="false">Tiến độ</th>
               <th>Thẻ</th>
               <th>Người thực hiện</th>
-              <th>Người liên quan</th>
+              <th v-if="false">Người liên quan</th>
               <th>Ngày tạo</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in jobs" :key="index">
+            <tr
+              class="job-row"
+              v-for="(item, index) in jobs"
+              :key="index"
+              @dblclick="onDBClickRow(item)"
+            >
               <td>
                 <div class="td-multiple">
-                  <div class="td-m-icon icon icon-24 icon-complete"></div>
-                  <div class="td-m-text">{{ item.JobName }}</div>
+                  <div
+                    class="td-m-icon icon icon-24"
+                    :class="{
+                      iconComplete: item.JobStatus == ENUMJOBSTATUS.Complete,
+                      iconProgess: item.JobStatus == ENUMJOBSTATUS.Processing,
+                      iconTodo: item.JobStatus == ENUMJOBSTATUS.Todo,
+                    }"
+                  ></div>
+                  <div
+                    class="td-m-text"
+                    :class="{
+                      textdecoration: item.JobStatus == ENUMJOBSTATUS.Complete,
+                    }"
+                  >
+                    {{ item.JobName }}
+                  </div>
                 </div>
               </td>
-              <td>Cá nhân</td>
+              <td v-if="false">Cá nhân</td>
               <td>
                 <div class="td-multiple">
                   <div class="td-m-icon icon icon-24 icon-group">
-                    <div class="icon icon-16 icon-user"></div>
+                    <div class="icon icon-16 icon-leaf"></div>
                   </div>
-                  <div class="td-m-text">{{ item.ProjectID }}</div>
+                  <div class="td-m-text">{{ nameproject }}</div>
                 </div>
               </td>
               <td>
                 <div class="td-multiple">
                   <div class="td-m-icon icon icon-datepicker"></div>
-                  <div class="td-m-text">{{ item.StartTime }}</div>
+                  <div class="td-m-text">
+                    {{ formatDateTime(item.StartTime) }}
+                  </div>
                 </div>
               </td>
               <td>
                 <div class="td-multiple">
                   <div class="td-m-icon icon icon-24 icon-datepicker-yes"></div>
-                  <div class="td-m-text">{{ item.EndTime }}</div>
+                  <div class="td-m-text">
+                    {{ formatDateTime(item.EndTime) }}
+                  </div>
                 </div>
               </td>
               <td>
                 <div class="td-multiple">
                   <div
-                    class="td-m-icon icon icon-10 icon-status outofdate"
+                    class="td-m-icon icon icon-10 icon-status"
+                    :class="onBindingJobStatus(item.EndTime, item.JobStatus)"
                   ></div>
-                  <div class="td-m-text">Quá hạn</div>
+                  <div class="td-m-text">
+                    {{
+                      isDateGreaterThanToday(item.EndTime)
+                        ? "Quá hạn"
+                        : item.JobStatus == ENUMJOBSTATUS.Complete
+                        ? "Đã hoàn thành"
+                        : item.JobStatus == ENUMJOBSTATUS.Processing
+                        ? "Đang thực hiện"
+                        : item.JobStatus == ENUMJOBSTATUS.Todo
+                        ? "Cần thực hiện"
+                        : ""
+                    }}
+                  </div>
                 </div>
               </td>
-              <td>Đang hoạt động</td>
-              <td>Gần xong</td>
+              <td v-if="false">Đang hoạt động</td>
+              <td v-if="false">Gần xong</td>
               <td>
                 <div class="td-multiple">
-                  <div class="td-m-icon icon icon-jobadd"></div>
-                  <div class="td-m-text"></div>
+                  <div
+                    class="td-m-icon icon icon-16"
+                    :class="{
+                      important: item.JobTag == ENUMJOBTAG.Important,
+                      instant: item.JobTag == ENUMJOBTAG.Urgent,
+                    }"
+                  ></div>
+                  <div class="td-m-text">
+                    {{
+                      item.JobTag == ENUMJOBTAG.Important
+                        ? "Quan trọng"
+                        : item.JobTag == ENUMJOBTAG.Urgent
+                        ? "Khẩn cấp"
+                        : ""
+                    }}
+                  </div>
                 </div>
               </td>
               <td>
@@ -292,57 +342,228 @@
                   <div class="td-m-text">Quách Văn Cảnh</div>
                 </div>
               </td>
-              <td>
+              <td v-if="false">
                 <div class="td-multiple">
                   <div class="td-m-icon icon icon-jobadd"></div>
                   <div class="td-m-text">Quách Văn Cảnh</div>
                 </div>
               </td>
-              <td>{{ item.EndTime }}</td>
+              <td>{{ formatDateTime(item.CreatedDate) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
   </div>
+  <JobDetail
+    :data="job"
+    :state="state"
+    :mode="ENUMMODE.Edit"
+    :nameproject="nameproject"
+    @onCancel="isShowJobDetail = false"
+    @onClose="isShowJobDetail = false"
+    @onConfirm="updateJob"
+    @onCloseDetail="onCloseDetail"
+    v-if="isShowJobDetail"
+  ></JobDetail>
+  <ToastMessage ref="toast"></ToastMessage>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
 </template>
 <script>
+import { ENUMSTATE } from "@/enum";
+import { ENUMJOBTAG } from "@/enum";
+import { ENUMMODE } from "@/enum";
+import { ENUMTOAST } from "@/enum";
+import { ENUMJOBSTATUS } from "@/enum";
+import JobDetail from "./../form/job-detail.vue";
+import ToastMessage from "./../../components/toast/toast-message.vue";
+import QvcLoading from "./../../components/dialog/qvc-loading.vue";
 export default {
   name: "ProjectList",
-  components: {},
+  components: { JobDetail, ToastMessage, QvcLoading },
   emits: [],
-  props: [],
-  watch: {},
+  props: ["id", "state", "isload", "nameproject"],
+  watch: {
+    isload() {
+      this.getAllJob(this.id, this.state);
+    },
+  },
   mounted() {
-    this.getAllJob(this.$route.params.id);
+    this.getAllJob(this.id, this.state);
   },
   created() {},
   methods: {
-    getAllJob(id) {
+    onCloseDetail() {
+      this.isShowJobDetail = false;
+      this.getAllJob(this.id, this.state);
+    },
+    updateJob(job, listjobChild) {
+      //Dữ liệu
+      var data = {
+        Data: job,
+        DBDomain:
+          this.state == ENUMSTATE.CaNhan
+            ? localStorage.getItem("domain-db")
+            : localStorage.getItem("domain-company"),
+      };
+      data.Data.ModifiedBy = localStorage.getItem("full-name");
+      this.isShowLoading = true;
+      this.axios
+        .post("http://localhost:56428/api/v2/Job/updateby-id", data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowJobDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể cập nhật dữ liệu.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+      console.log(listjobChild);
+    },
+    onDBClickRow(data) {
+      this.job = data;
+      this.isShowJobDetail = true;
+    },
+    getAllJob(id, state) {
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       this.axios
         .get(
-          `http://localhost:56428/api/v2/Job/project?id=${id}&domain=${localStorage.getItem(
-            "domain-db"
-          )}`
+          `http://localhost:56428/api/v2/Job/getall-byid?id=${id}&domain=${db}`
         )
         .then((res) => {
           this.jobs = res.data;
+          console.log(this.jobs);
         })
         .catch((res) => {
           console.log(res);
         });
+    },
+    onBindingJobStatus(time, status) {
+      var clas = "";
+      if (this.isDateGreaterThanToday(time)) {
+        clas = "outofdate";
+      } else {
+        if (status == ENUMJOBSTATUS.Processing) {
+          clas = "progess";
+        }
+        if (status == ENUMJOBSTATUS.Todo) {
+          clas = "todo";
+        }
+        if (status == ENUMJOBSTATUS.Complete) {
+          clas = "complete";
+        }
+      }
+      return clas;
+    },
+    isDateGreaterThanToday(dateString) {
+      const date = new Date(dateString);
+      const today = new Date();
+      if (!dateString) {
+        return false;
+      } else {
+        return date < today;
+      }
+    },
+
+    formatDateTime(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      if (
+        `${day}/${month}/${year}` == "01/01/1970" ||
+        `${day}/${month}/${year}` == "01/01/1"
+      ) {
+        return ``;
+      } else {
+        return `${day}/${month}/${year} - ${hours}:${minutes}`;
+      }
     },
   },
   data() {
     return {
       /**Danh sách công việc*/
       jobs: [],
+      ENUMSTATE,
+      ENUMJOBSTATUS,
+      ENUMJOBTAG,
+      isShowJobDetail: false,
+      job: {},
+      ENUMMODE,
+      isShowLoading: false,
     };
   },
 };
 </script>
 
 <style scoped>
+.icon-group {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.job-row {
+  cursor: pointer;
+}
+.job-row:hover {
+  background-color: #eef8ec;
+}
+
+.important {
+  background-image: url(./../../assets/img/information-circle-orange.svg);
+}
+.instant {
+  background-image: url(./../../assets/img/lightning-circle-red.svg);
+}
+.outofdate {
+  background-color: red !important;
+  border-color: red;
+}
+.complete {
+  background-color: #50b83c !important;
+  border-color: #50b83c !important;
+}
+.todo {
+  /* background-color: rgb(141, 163, 166) !important;
+  border-color: rgb(141, 163, 166) !important; */
+}
+.progess {
+  background-color: coral !important;
+  border-color: coral !important;
+}
+.textdecoration {
+  text-decoration: line-through !important;
+}
+.iconTodo {
+  background-image: url(./../../assets/img/complete.svg);
+}
+.iconProgess {
+  background-image: url(./../../assets/img/Progress.svg);
+}
+.iconComplete {
+  background-image: url(./../../assets/img/done-green.svg);
+}
 .project-task-content {
   width: calc(100% - 40px);
   height: calc(100vh - 96px);

@@ -21,11 +21,13 @@
 </template>
 
 <script>
+import { ENUMSTATE } from "@/enum.js";
+import { ENUMROLE } from "@/enum.js";
 export default {
   name: "ListProject",
   components: {},
   emits: ["onSelectProject"],
-  props: ["id", "name"],
+  props: ["id", "name", "idcompany"],
   created() {},
   methods: {
     /**
@@ -64,11 +66,13 @@ export default {
      * @param {*} id id của phòng ban
      */
     getProjectById(id) {
+      // Chuẩn bị dữ liệu
+      var db = !this.idcompany
+        ? localStorage.getItem("domain-db")
+        : localStorage.getItem("domain-company");
       this.axios
         .get(
-          `http://localhost:56428/api/v2/Project/project?id=${id}&domain=${localStorage.getItem(
-            "domain-db"
-          )}`
+          `http://localhost:56428/api/v2/Project/getall-byid?id=${id}&domain=${db}`
         )
         .then((res) => {
           if (res.data) {
@@ -87,6 +91,8 @@ export default {
 
       /**Danh sách dự án */
       projects: [],
+      ENUMSTATE,
+      ENUMROLE,
     };
   },
 };

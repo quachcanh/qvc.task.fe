@@ -7,12 +7,19 @@
           <span>{{ jobTodos.length }}</span>
         </div>
       </div>
-      <div class="gr-content">
+      <div class="gr-content scrollbar">
         <div class="item-job" v-for="(item, index) in jobTodos" :key="index">
+          <div class="job-status">
+            <div class="s-item icon icon-24 icon-todo"></div>
+            <div class="s-text" style="color: rgb(141, 163, 166)">
+              Cần thực hiện
+            </div>
+          </div>
           <div class="job-name">{{ item.JobName }}</div>
           <div class="job-icon">
             <div class="icon icon-24 icon-relevant-circle-dash-v2"></div>
             <div class="icon icon-24 icon-no-date"></div>
+            <div class="date-end">{{ formatDate(item.EndTime) }}</div>
           </div>
         </div>
       </div>
@@ -20,18 +27,27 @@
     <div class="group-job">
       <div class="gr-header" style="background-color: rgb(33, 150, 243)">
         <div class="gr-hd-text">Đang thực hiện</div>
-        <div class="gr-hd-count"><span>5</span></div>
+        <div class="gr-hd-count">
+          <span>{{ jobProcessings.length }}</span>
+        </div>
       </div>
-      <div class="gr-content">
+      <div class="gr-content scrollbar">
         <div
           class="item-job"
           v-for="(item, index) in jobProcessings"
           :key="index"
         >
+          <div class="job-status">
+            <div class="s-item icon icon-24 icon-Progress"></div>
+            <div class="s-text" style="color: rgb(164, 207, 48)">
+              Đang thực hiện
+            </div>
+          </div>
           <div class="job-name">{{ item.JobName }}</div>
           <div class="job-icon">
             <div class="icon icon-24 icon-relevant-circle-dash-v2"></div>
             <div class="icon icon-24 icon-no-date"></div>
+            <div class="date-end">{{ formatDate(item.EndTime) }}</div>
           </div>
         </div>
       </div>
@@ -39,18 +55,29 @@
     <div class="group-job">
       <div class="gr-header" style="background-color: rgb(76, 217, 100)">
         <div class="gr-hd-text">Đã hoàn thành</div>
-        <div class="gr-hd-count"><span>5</span></div>
+        <div class="gr-hd-count">
+          <span>{{ jobCompletes.length }}</span>
+        </div>
       </div>
-      <div class="gr-content">
+      <div class="gr-content scrollbar">
         <div
           class="item-job"
           v-for="(item, index) in jobCompletes"
           :key="index"
         >
-          <div class="job-name">{{ item.JobName }}</div>
+          <div class="job-status">
+            <div class="s-item icon icon-24 icon-done-green"></div>
+            <div class="s-text" style="color: rgb(53, 190, 69)">
+              Đã hoàn thành
+            </div>
+          </div>
+          <div class="job-name" style="text-decoration: line-through">
+            {{ item.JobName }}
+          </div>
           <div class="job-icon">
             <div class="icon icon-24 icon-relevant-circle-dash-v2"></div>
             <div class="icon icon-24 icon-no-date"></div>
+            <div class="date-end">{{ formatDate(item.EndTime) }}</div>
           </div>
         </div>
       </div>
@@ -58,48 +85,83 @@
   </div>
 </template>
 <script>
+import { ENUMSTATE } from "@/enum";
 export default {
   name: "ProjectTable",
   components: {},
   emits: [],
-  props: [],
-  watch: {},
+  props: ["id", "state", "isload"],
+  watch: {
+    isload() {
+      // Lấy danh sách dự án thep phòng ban
+      this.getJobTodo(this.id, this.state);
+      this.getJobProcessing(this.id, this.state);
+      this.getJobComplete(this.id, this.state);
+    },
+  },
   mounted() {
     // Lấy danh sách dự án thep phòng ban
-    this.getJobTodo(this.$route.params.id);
-    this.getJobProcessing(this.$route.params.id);
-    this.getJobComplete(this.$route.params.id);
+    this.getJobTodo(this.id, this.state);
+    this.getJobProcessing(this.id, this.state);
+    this.getJobComplete(this.id, this.state);
   },
   created() {},
   methods: {
-    getJobTodo(id) {
+    /**
+     * THực hiện formatj ngày tháng
+     * @param {*} data dữ liệu
+     */
+    formatDate(data) {
+      // Tạo một đối tượng Date từ chuỗi "2023-02-22T00:00:00"
+      const date = new Date(data);
+
+      // Lấy các giá trị ngày, tháng, năm từ đối tượng Date
+      const day = date.getDate();
+      const month = date.getMonth() + 1;
+      const year = date.getFullYear();
+
+      // Tạo chuỗi định dạng "dd/mm/yyyy" từ các giá trị ngày, tháng, năm
+      const formattedDate = `${day}/${month}/${year}`;
+      if (formattedDate == "1/1/1") {
+        return "";
+      } else {
+        return formattedDate;
+      }
+    },
+    getJobTodo(id, state) {
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       this.axios
         .get(
-          `http://localhost:56428/api/v2/Job/job-todo?id=${id}&dbDomain=${localStorage.getItem(
-            "domain-db"
-          )}`
+          `http://localhost:56428/api/v2/Job/job-todo?id=${id}&dbDomain=${db}`
         )
         .then((res) => {
           this.jobTodos = res.data;
         });
     },
-    getJobProcessing(id) {
+    getJobProcessing(id, state) {
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       this.axios
         .get(
-          `http://localhost:56428/api/v2/Job/job-processing?id=${id}&dbDomain=${localStorage.getItem(
-            "domain-db"
-          )}`
+          `http://localhost:56428/api/v2/Job/job-processing?id=${id}&dbDomain=${db}`
         )
         .then((res) => {
           this.jobProcessings = res.data;
         });
     },
-    getJobComplete(id) {
+    getJobComplete(id, state) {
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       this.axios
         .get(
-          `http://localhost:56428/api/v2/Job/job-complete?id=${id}&dbDomain=${localStorage.getItem(
-            "domain-db"
-          )}`
+          `http://localhost:56428/api/v2/Job/job-complete?id=${id}&dbDomain=${db}`
         )
         .then((res) => {
           this.jobCompletes = res.data;
@@ -116,12 +178,31 @@ export default {
 
       /**Danh sách công việc đã hoàn thành */
       jobCompletes: [],
+      ENUMSTATE,
     };
   },
 };
 </script>
 
 <style scoped>
+.date-end {
+  font-size: 12px;
+  font-weight: 600;
+  color: red;
+}
+.s-item {
+  margin-right: 10px;
+}
+.s-text {
+  font-weight: 600;
+}
+.job-status {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #c2c2c2;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+}
 .job-name {
   font-size: 15px;
   color: rgba(0, 0, 0, 0.87);
@@ -129,6 +210,7 @@ export default {
 }
 .job-icon {
   display: flex;
+  align-items: center;
 }
 .item-job {
   width: calc(100% - 24px);
@@ -140,12 +222,22 @@ export default {
 .item-job + .item-job {
   margin-top: 12px;
 }
+.icon-todo {
+  background-image: url(./../../assets/img/todo.svg);
+}
+.icon-Progress {
+  background-image: url(./../../assets/img/Progress.svg);
+}
+.icon-done-green {
+  background-image: url(./../../assets/img/done-green.svg);
+}
 .icon-relevant-circle-dash-v2 {
   background-image: url(./../../assets/img/relevant-circle-dash-v2.svg);
   margin-right: 16px;
 }
 .icon-no-date {
   background-image: url(./../../assets/img/no-date.svg);
+  margin-right: 12px;
 }
 .gr-hd-count {
   display: flex;

@@ -73,6 +73,7 @@
 import PopupNotification from "./../components/popup/popup-notification.vue";
 import QvcLoading from "./../components/dialog/qvc-loading.vue";
 import { ENUMICON } from "@/enum.js";
+import { ENUMSTATE } from "@/enum.js";
 export default {
   name: "LoginAccount",
   components: { PopupNotification, QvcLoading },
@@ -163,6 +164,15 @@ export default {
       localStorage.setItem("full-name", res.data.Info.EmployeeName);
       localStorage.setItem("email", res.data.Info.Email);
       localStorage.setItem("domain-db", res.data.Info.UserName + "_qvc_task");
+      localStorage.setItem("company-code", this.login.CompanyCode);
+      localStorage.setItem("domain-company", res.data.DomainCompany);
+      localStorage.setItem("company-id", res.data.CompanyID);
+      localStorage.setItem("role", res.data.Info.Role);
+      localStorage.setItem("userid", res.data.Info.EmployeeID);
+      localStorage.setItem(
+        "state",
+        !this.login.CompanyCode ? ENUMSTATE.CaNhan : ENUMSTATE.CongTy
+      );
     },
 
     /**
@@ -219,6 +229,7 @@ export default {
 
       /**Dữ liệu enum */
       ENUMICON,
+      ENUMSTATE,
     };
   },
 };

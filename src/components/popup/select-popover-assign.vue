@@ -2,27 +2,31 @@
   <div class="popup-combobox popup-select-popover" style="padding: 24px">
     <div class="arror arrow-top"></div>
     <div class="p-s-content">
-      <h3>Chọn người thực hiện</h3>
-      <div class="icon icon-16 search-all" style="top: 85px"></div>
-      <input
-        class="input input-icon-left i-search-all"
-        type="text"
-        placeholder="Tìm kiếm thành viên"
-        style="width: calc(100% - 46px); margin-bottom: 16px"
-      />
-      <div
-        v-for="(item, index) in employees"
-        :key="index"
-        class="item"
-        :objid="item.EmployeeID"
-        @click="onSelectEmployee(item)"
-      >
-        <div class="item-avt">
-          <div class="icon icon-16 icon-user-v2"></div>
-        </div>
-        <div class="item-content">
-          <div class="c-name">{{ item.EmployeeName }}</div>
-          <div class="c-email">{{ item.Email }}</div>
+      <div>
+        <h3>Chọn người thực hiện</h3>
+        <div class="icon icon-16 search-all" style="top: 85px"></div>
+        <input
+          class="input input-icon-left i-search-all"
+          type="text"
+          placeholder="Tìm kiếm thành viên"
+          style="width: calc(100% - 46px); margin-bottom: 16px"
+        />
+      </div>
+      <div class="scrollbar" style="max-height: 150px">
+        <div
+          v-for="(item, index) in employees"
+          :key="index"
+          class="item"
+          :objid="item.EmployeeID"
+          @click="onSelectEmployee(item)"
+        >
+          <div class="item-avt">
+            <div class="icon icon-16 icon-user-v2"></div>
+          </div>
+          <div class="item-content">
+            <div class="c-name">{{ item.EmployeeName }}</div>
+            <div class="c-email">{{ item.Email }}</div>
+          </div>
         </div>
       </div>
     </div>
@@ -30,6 +34,7 @@
 </template>
 
 <script>
+import { ENUMSTATE } from "@/enum.js";
 export default {
   name: "SelectPopoverAssign",
   components: {},
@@ -50,12 +55,13 @@ export default {
      * Lấy danh sách người dùng
      */
     onGetAllEmployee() {
+      var state = parseInt(localStorage.getItem("state"));
+      var db =
+        state == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
       this.axios
-        .get(
-          `http://localhost:56428/api/v2/Employee/${localStorage.getItem(
-            "domain-db"
-          )}`
-        )
+        .get(`http://localhost:56428/api/v2/Employee/${db}`)
         .then((res) => {
           if (res) {
             this.employees = res.data;
@@ -71,6 +77,7 @@ export default {
     return {
       /**Thông tin người dung */
       employees: [],
+      ENUMSTATE,
     };
   },
 };

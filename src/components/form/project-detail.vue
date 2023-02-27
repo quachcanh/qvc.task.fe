@@ -5,7 +5,7 @@
     <div class="modal-content">
       <span class="icon icon-24 close" @click="onClose"></span>
       <!-- Modal header -->
-      <div class="title">Thêm mới dự án</div>
+      <div class="title">{{ textRole.title }}</div>
       <div class="form-body">
         <div class="from-item">
           <div class="item-content">Tên dự án <b class="requied">&#42;</b></div>
@@ -22,9 +22,9 @@
             class="from-item-group"
             style="position: relative; margin-right: 12px"
           >
-            <div class="item-content">Chọn phòng ban</div>
+            <div class="item-content">{{ textRole.titleDepart }}</div>
             <input
-              placeholder="-- Chọn phòng ban --"
+              :placeholder="textRole.tooltipDepart"
               class="input item-cbb"
               type="text"
               :objid="this.project.DepartmentID"
@@ -66,7 +66,7 @@
             type="text"
           />
         </div>
-        <div class="from-item form-select">
+        <div class="from-item form-select" v-if="keyRole.isShowAddEmp">
           <div class="item-content">Thành viên (1)</div>
           <input
             placeholder="Tìm theo tên hoặc email để thêm nhanh"
@@ -87,20 +87,149 @@
   </div>
 </template>
 <script>
+import { ENUMSTATE } from "@/enum.js";
+import { ENUMROLE } from "@/enum.js";
+import { ENUMMODE } from "@/enum.js";
 export default {
   name: "ProjectDetail",
-  props: ["iddeprt", "namedeprt"],
+  props: ["iddeprt", "namedeprt", "idcompany", "mode", "data", "stateedit"],
   emits: ["onClose", "onCancel", "onConfirm"],
   components: {},
+  mounted() {
+    this.onCheckState();
+    this.onCheckRole();
+    this.setViewRole();
+  },
   created() {
+    this.onCheckState();
+    this.onCheckRole();
+    this.setViewRole();
     this.$nextTick(() => this.$refs.nameproject.focus());
     // Hiển thị thông tin phòng ban đang chọn
     if (this.namedeprt && this.iddeprt) {
       this.project.DepartmentName = this.namedeprt;
       this.project.DepartmentID = this.iddeprt;
     }
+    if (this.mode == ENUMMODE.Edit) {
+      this.textRole.title = "Chỉnh sửa dự án";
+      this.project = this.data;
+      //Binding ngày
+      if (this.onConvertDate(this.project.StartDay) != "") {
+        this.project.StartDay = this.onConvertDate(this.project.StartDay);
+      } else {
+        this.project.StartDay = null;
+      }
+      if (this.onConvertDate(this.project.EndDay) != "") {
+        this.project.EndDay = this.onConvertDate(this.project.EndDay);
+      } else {
+        this.project.EndDay = null;
+      }
+      this.getDepartmentById(this.project.DepartmentID);
+      console.log(this.data);
+    } else {
+      this.textRole.title = "Thêm mới dự án";
+    }
   },
   methods: {
+    onCheckRole() {
+      this.role = parseInt(localStorage.getItem("role"));
+    },
+    onCheckState() {
+      if (
+        !localStorage.getItem("domain-company") ||
+        localStorage.getItem("domain-company") == "null"
+      ) {
+        this.state = ENUMSTATE.CaNhan;
+      } else {
+        //Dạng công ty
+        this.state = ENUMSTATE.CongTy;
+      }
+    },
+    setViewRole() {
+      this.onCheckState();
+      if (this.state == ENUMSTATE.CaNhan) {
+        this.textRole.titleDepart = "Chọn danh mục";
+        this.textRole.tooltipDepart = "-- Chọn danh mục --";
+        this.keyRole.isShowAddEmp = false;
+      } else {
+        this.textRole.titleDepart = "Chọn phòng ban";
+        this.textRole.tooltipDepart = "-- Chọn phòng ban --";
+        if (!this.idcompany) {
+          this.keyRole.isShowAddEmp = false;
+        } else {
+          this.keyRole.isShowAddEmp = true;
+        }
+      }
+    },
+    /**
+     * Thực hiện convert ngày tháng năm để binding lên form
+     * @param {Any} date Dữ liệu ngày tháng
+     * Author: QVCANH (05/12/2022)
+     */
+    onConvertDate(date) {
+      try {
+        date = new Date(date);
+
+        //Lấy ngày:
+        var day = date.getDate();
+        day = day < 10 ? `0${day}` : day;
+        //Lấy tháng:
+        var month = date.getMonth() + 1;
+        month = month < 10 ? `0${month}` : month;
+        //Lấy năm:
+        var year = date.getFullYear();
+
+        //Trả về định dạng tháng/năm/ngày
+        var data = `${year}-${month}-${day}`;
+        return data;
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    getDepartmentById(id) {
+      console.log(this.stateedit);
+      var db =
+        this.stateedit == ENUMSTATE.CaNhan
+          ? localStorage.getItem("domain-db")
+          : localStorage.getItem("domain-company");
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Department/getby-id?id=${id}&domaindb=${db}`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.project.DepartmentName = res.data.DepartmentName;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    /**
+     * Lấy danh sách phòng ban
+     */
+    getDepartment() {
+      // Chuẩn bị dữ liệu
+      var data = {
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: this.state,
+      };
+
+      this.axios
+        .post(
+          "http://localhost:56428/api/v2/Department/getall-department",
+          data
+        )
+        .then((res) => {
+          if (res) {
+            this.departments = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
     /**
      * Sự kiện ẩn popup
      */
@@ -119,7 +248,7 @@ export default {
      * Sự kiện ấn đồng ý
      */
     onConfirm() {
-      this.$emit("onConfirm", this.project, this.employeeId);
+      this.$emit("onConfirm", this.project, this.employeeId, this.idcompany);
     },
 
     /**
@@ -131,18 +260,8 @@ export default {
       } else {
         // Hiển thị popup
         this.isShowDropDeprt = true;
-        //Gọi API lấy danh sách phòng ban
-        var domain = localStorage.getItem("domain-db");
-        this.axios
-          .get(`http://localhost:56428/api/v2/Department/${domain}`)
-          .then((res) => {
-            if (res) {
-              this.departments = res.data;
-            }
-          })
-          .catch((res) => {
-            console.log(res);
-          });
+        this.onCheckState();
+        this.getDepartment();
       }
     },
 
@@ -157,6 +276,11 @@ export default {
   },
   data() {
     return {
+      textRole: {},
+      keyRole: {},
+      role: ENUMROLE.Leve0,
+      state: ENUMSTATE.CaNhan,
+
       /**Đối tượng thông tin dự án */
       project: {},
 
@@ -168,6 +292,9 @@ export default {
 
       /**Danh sách phòng ban */
       departments: [],
+      ENUMSTATE,
+      ENUMROLE,
+      ENUMMODE,
     };
   },
 };
@@ -177,7 +304,7 @@ export default {
 /* The Modal (background) */
 .modal {
   position: fixed; /* Stay in place */
-  z-index: 1; /* Sit on top */
+  z-index: 10; /* Sit on top */
   left: 0;
   top: 0;
   width: 100%; /* Full width */

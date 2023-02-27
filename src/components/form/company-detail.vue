@@ -5,21 +5,21 @@
     <div class="modal-content">
       <span class="icon icon-24 close" @click="onClose"></span>
       <!-- Modal header -->
-      <div class="title">{{ textRole.title }}</div>
+      <div class="title">Thêm tổ chức (công ty/doanh nghiệp)</div>
       <div class="form-body">
         <div class="from-item">
           <div class="item-content">
-            {{ textRole.namedeprt }} <b class="requied">&#42;</b>
+            Tên công ty / doanh nghiệp <b class="requied">&#42;</b>
           </div>
           <input
             ref="namedeprt"
-            placeholder="Nhập tên phòng ban..."
+            placeholder="Nhập tên công ty / doanh nghiệp..."
             class="input"
             type="text"
-            v-model="this.department.DepartmentName"
+            v-model="company.CompanyName"
           />
         </div>
-        <div class="from-item form-select" v-if="keyRole.isSHowAddEMp">
+        <div class="from-item form-select">
           <div class="item-content">Thành viên (1)</div>
           <div class="c-title">
             <div class="role">
@@ -61,38 +61,42 @@
             <div class="content-select">Chọn</div>
           </div>
         </div>
-      </div>
-      <div class="info-select">
-        <div class="info-emp" v-for="(item, index) in empSelected" :key="index">
-          {{ item.EmployeeName }}
-        </div>
-      </div>
-      <div class="popup-select" v-if="isShowPopEmp">
-        <div class="pop-body">
+        <div class="info-select">
           <div
-            class="item-add"
-            v-for="(item, index) in emp"
+            class="info-emp"
+            v-for="(item, index) in empSelected"
             :key="index"
-            :id="item.EmployeeID"
           >
-            <div
-              class="icon icon-20 icon-checkbox"
-              select="false"
-              ref="selectemp"
-              @click="onSelectEmp($event, item)"
-              :id="item.EmployeeID"
-              :name="item.EmployeeName"
-            ></div>
-            <div class="icon icon-32 avatar"></div>
-            <div class="s-text">
-              <div class="t-name">{{ item.EmployeeName }}</div>
-              <div class="t-email">{{ item.Email }}</div>
-            </div>
+            {{ item.EmployeeName }}
           </div>
         </div>
-        <div class="pop-foodter">
-          <button class="btn btn-light" @click="onClickCancel">Huỷ bỏ</button>
-          <button class="btn btn-success" @click="onClickSelect">Chọn</button>
+        <div class="popup-select" v-if="isShowPopEmp">
+          <div class="pop-body">
+            <div
+              class="item-add"
+              v-for="(item, index) in emp"
+              :key="index"
+              :id="item.EmployeeID"
+            >
+              <div
+                class="icon icon-20 icon-checkbox"
+                select="false"
+                ref="selectemp"
+                @click="onSelectEmp($event, item)"
+                :id="item.EmployeeID"
+                :name="item.EmployeeName"
+              ></div>
+              <div class="icon icon-32 avatar"></div>
+              <div class="s-text">
+                <div class="t-name">{{ item.EmployeeName }}</div>
+                <div class="t-email">{{ item.Email }}</div>
+              </div>
+            </div>
+          </div>
+          <div class="pop-foodter">
+            <button class="btn btn-light" @click="onClickCancel">Huỷ bỏ</button>
+            <button class="btn btn-success" @click="onClickSelect">Chọn</button>
+          </div>
         </div>
       </div>
       <div class="modal-foodter">
@@ -103,55 +107,34 @@
   </div>
 </template>
 <script>
-import { ENUMMODE } from "@/enum.js";
 export default {
-  name: "DepartmentDetail",
-  props: ["mode", "data"],
+  name: "CompanyDetail",
+  props: [],
   emits: ["onClose", "onCancel", "onConfirm"],
   components: {},
   created() {
-    if (this.mode == ENUMMODE.Edit) {
-      this.department = this.data;
-    }
-    this.checkState();
-    this.$nextTick(() => this.$refs.namedeprt.focus());
+    //   this.$nextTick(() => this.$refs.namedeprt.focus());
   },
   methods: {
-    onSelectEmp(e, val) {
-      //Lấy ra trạng thái select
-      var state = e.target.attributes["select"].value;
-      if (state == "true") {
-        //bỏ chọn
-        e.target.attributes["select"].value = "false";
-        e.target.classList.remove("icon-checked");
-        e.target.classList.add("icon-checkbox");
-        for (let i = 0; i < this.empSelected.length; i++) {
-          if (
-            this.empSelected[i].EmployeeID == e.target.attributes["id"].value
-          ) {
-            this.empSelected.splice(i, 1);
-          }
-        }
-      } else {
-        //chọn
-        e.target.attributes["select"].value = "true";
-        e.target.classList.remove("icon-checkbox");
-        e.target.classList.add("icon-checked");
-        this.empSelected.push(val);
-      }
+    /**
+     * Sự kiện ẩn popup
+     */
+    onClose() {
+      this.$emit("onClose");
     },
-    onClickSelect() {
-      console.log(this.empSelected);
-      this.isShowPopEmp = false;
+
+    /**
+     * Sự kiện ẩn popup
+     */
+    onCancel() {
+      this.$emit("onCancel");
     },
-    onShowPopSeleteEmp() {
-      if (this.isShowPopEmp) {
-        this.isShowPopEmp = false;
-      } else {
-        this.empSelected = [];
-        this.onGetAllEmpInfo();
-        this.isShowPopEmp = true;
-      }
+
+    /**
+     * Sự kiện ấn đồng ý
+     */
+    onConfirm() {
+      this.$emit("onConfirm", this.company, this.empSelected, this.role);
     },
 
     onGetRole(e, role) {
@@ -176,11 +159,54 @@ export default {
       }
       this.role = role;
     },
+
+    generateCodeDeprt(key) {
+      // Generate a random integer between 0 and 99999
+      const randomNumber = Math.floor(Math.random() * 100000);
+
+      // Pad the number with leading zeros to ensure it has 5 digits
+      const randomCode = randomNumber.toString().padStart(5, "0");
+
+      // Concatenate the code with the prefix 'DP'
+      const finalCode = key + randomCode;
+
+      return finalCode;
+    },
+
+    onSelectEmp(e, val) {
+      //Lấy ra trạng thái select
+      var state = e.target.attributes["select"].value;
+      if (state == "true") {
+        //bỏ chọn
+        e.target.attributes["select"].value = "false";
+        e.target.classList.remove("icon-checked");
+        e.target.classList.add("icon-checkbox");
+        for (let i = 0; i < this.empSelected.length; i++) {
+          if (
+            this.empSelected[i].EmployeeID == e.target.attributes["id"].value
+          ) {
+            this.empSelected.splice(i, 1);
+          }
+        }
+      } else {
+        //chọn
+        e.target.attributes["select"].value = "true";
+        e.target.classList.remove("icon-checkbox");
+        e.target.classList.add("icon-checked");
+        this.empSelected.push(val);
+      }
+    },
+
+    onClickSelect() {
+      console.log(this.empSelected);
+      this.isShowPopEmp = false;
+    },
+
     onGetAllEmpInfo() {
       this.axios
         .get(
           `http://localhost:56428/api/v2/Employee/getall-user-dbinfo?dbDomain=${localStorage.getItem(
-            "domain-company"
+            "domain-db"
           )}&dbInfo=qvc_task_info`
         )
         .then((res) => {
@@ -192,71 +218,51 @@ export default {
           console.log(res);
         });
     },
-    checkState() {
-      if (
-        !localStorage.getItem("domain-company") ||
-        localStorage.getItem("domain-company") == "null"
-      ) {
-        // Dạng cá nhân
-        if (this.mode == ENUMMODE.Edit) {
-          this.textRole.title = "Sửa danh mục công việc";
-        } else {
-          this.textRole.title = "Thêm danh mục công việc";
-        }
-        this.textRole.namedeprt = "Tên danh mục";
-        this.keyRole.isSHowAddEMp = false;
+
+    onClickCancel() {
+      this.isShowPopEmp = false;
+    },
+    onShowPopSeleteEmp() {
+      if (this.isShowPopEmp) {
+        this.isShowPopEmp = false;
       } else {
-        //Dạng công ty
-        if (this.mode == ENUMMODE.Edit) {
-          this.textRole.title = "Sửa phòng ban";
-        } else {
-          this.textRole.title = "Thêm phòng ban";
-        }
-        this.textRole.namedeprt = "Tên phòng ban";
-        this.keyRole.isSHowAddEMp = true;
+        this.empSelected = [];
+        this.onGetAllEmpInfo();
+        this.isShowPopEmp = true;
       }
-    },
-    /**
-     * Sự kiện ẩn popup
-     */
-    onClose() {
-      this.$emit("onClose");
-    },
-
-    /**
-     * Sự kiện ẩn popup
-     */
-    onCancel() {
-      this.$emit("onCancel");
-    },
-
-    /**
-     * Sự kiện ấn đồng ý
-     */
-    onConfirm() {
-      this.$emit("onConfirm", this.department, this.empSelected, this.role);
     },
   },
   data() {
     return {
-      role: 0,
+      isShowPopEmp: false,
       emp: [],
       empSelected: [],
-      isShowPopEmp: false,
-      keyRole: {},
-      textRole: {},
-      /**Đối tượng thông tin phòng ban */
-      department: {},
-
-      /**Danh sách thành viên được chọn */
-      employeeId: [],
-      ENUMMODE,
+      company: {},
+      role: 1,
     };
   },
 };
 </script>
 
 <style scoped>
+.text-role {
+  font-size: 12px;
+  font-weight: 600;
+}
+.role {
+  display: flex;
+  align-items: center;
+  margin-bottom: 3px;
+}
+.role + .role {
+  margin-left: 24px;
+}
+
+.info-select {
+  display: flex;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
 .c-title {
   display: flex;
   align-items: center;
@@ -272,11 +278,18 @@ export default {
 .info-emp + .info-emp {
   margin-left: 12px;
 }
-.pop-body {
-  overflow-y: scroll;
+.pop-foodter {
+  display: flex;
+  justify-content: flex-end;
 }
 .icon-checkbox {
   background-image: url(./../../assets/img/check.svg);
+  margin-right: 12px;
+  cursor: pointer;
+}
+
+.icon-checked {
+  background-image: url(./../../assets/img/checked.svg);
   margin-right: 12px;
   cursor: pointer;
 }
@@ -284,29 +297,34 @@ export default {
   background-image: url(./../../assets/img/avatar.svg);
   margin-right: 12px;
 }
-.text-role {
-  font-size: 12px;
-  font-weight: 600;
-}
-.icon-checked {
-  background-image: url(./../../assets/img/checked.svg);
-  margin-right: 12px;
-  cursor: pointer;
-}
-.icon-checkbox {
-  background-image: url(./../../assets/img/check.svg);
-  margin-right: 12px;
-  cursor: pointer;
-}
-.role {
+.item-add {
   display: flex;
+  width: calc(100% - 16px);
+  background-color: #fefefe;
+  border-radius: 8px;
+  padding: 8px;
   align-items: center;
-  margin-bottom: 3px;
 }
-.role + .role {
-  margin-left: 24px;
+.item-add:hover {
+  background-color: #dcf1d8;
+  cursor: pointer;
 }
-
+.pop-body {
+  overflow-y: scroll;
+}
+.popup-select {
+  width: calc(100% - 24px);
+  min-height: 200px;
+  max-height: 200px;
+  background-color: #fff;
+  position: absolute;
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
 /* The Modal (background) */
 .modal {
   position: fixed; /* Stay in place */
@@ -337,36 +355,7 @@ export default {
   width: auto;
   border-radius: 8px;
 }
-.popup-select {
-  width: calc(100% - 60px);
-  min-height: 200px;
-  max-height: 200px;
-  background-color: #fff;
-  position: absolute;
-  border-radius: 8px;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-.item-add {
-  display: flex;
-  width: calc(100% - 16px);
-  background-color: #fefefe;
-  border-radius: 8px;
-  padding: 8px;
-  align-items: center;
-}
-.item-add:hover {
-  background-color: #dcf1d8;
-  cursor: pointer;
-}
-.info-select {
-  display: flex;
-  margin-top: 12px;
-  flex-wrap: wrap;
-}
+
 .title {
   font-size: 24px;
   font-weight: 600;
@@ -375,6 +364,7 @@ export default {
 .form-body {
   padding-top: 20px;
   padding-bottom: 20px;
+  position: relative;
 }
 
 .modal-foodter {

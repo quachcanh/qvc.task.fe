@@ -30,7 +30,7 @@
               <div class="icon-h-drop drop-black"></div>
             </div>
           </div>
-          <div class="popup-combobox cbb-other">
+          <div class="popup-combobox cbb-other" v-if="false">
             <div class="arror arrow-top"></div>
             <div class="p-s-content">
               <div class="item-ccb">
@@ -59,11 +59,19 @@
           <div class="b-header-left">
             <div class="bh-left-job-soon">
               <div class="job-soon job-text">Công việc sắp đến hạn</div>
-              <div class="job-soon job-state" @click="isShowSortByDate = !isShowSortByDate">7 ngày gần nhất</div>
-              <div class="job-soon job-icon" @click="isShowSortByDate = !isShowSortByDate">
+              <div
+                class="job-soon job-state"
+                @click="isShowSortByDate = !isShowSortByDate"
+              >
+                7 ngày gần nhất
+              </div>
+              <div
+                class="job-soon job-icon"
+                @click="isShowSortByDate = !isShowSortByDate"
+              >
                 <div class="icon-h-drop drop-gray"></div>
               </div>
-              <div class="popup-combobox popup-sort">
+              <div class="popup-combobox popup-sort" v-if="false">
                 <div class="arror arrow-top"></div>
                 <div class="p-s-content">
                   <div class="item-ccb">
@@ -93,7 +101,7 @@
               <div class="icon__button icon-setup"></div>
               <span>Thiết lập</span>
             </button>
-            <div class="popup popup-setup">
+            <div class="popup popup-setup" v-if="false">
               <div class="arror arrow-top arrow-setup"></div>
               <div class="popup-header">
                 <div class="p-header-title">Tuỳ chọn dữ liệu</div>
@@ -277,29 +285,29 @@
             <thead>
               <tr>
                 <th>Tên công việc</th>
-                <th>Phòng ban</th>
-                <th>Dự án/Nhóm</th>
+                <th v-if="false">Phòng ban</th>
+                <th v-if="false">Dự án/Nhóm</th>
                 <th>Thời điểm bắt đầu</th>
                 <th>Hạn hoàn thành</th>
                 <th>Tình trạng</th>
-                <th>Trạng thái hoạt động</th>
-                <th>Tiến độ</th>
+                <th v-if="false">Trạng thái hoạt động</th>
+                <th v-if="false">Tiến độ</th>
                 <th>Thẻ</th>
                 <th>Người thực hiện</th>
-                <th>Người liên quan</th>
+                <th v-if="false">Người liên quan</th>
                 <th>Ngày tạo</th>
               </tr>
             </thead>
             <tbody>
-              <tr>
+              <tr v-for="(mytask, index) in mytask" :key="index">
                 <td>
                   <div class="td-multiple">
                     <div class="td-m-icon icon icon-24 icon-complete"></div>
-                    <div class="td-m-text">Tạo công việc của cá nhân</div>
+                    <div class="td-m-text">{{ mytask.JobName }}</div>
                   </div>
                 </td>
-                <td>Cá nhân</td>
-                <td>
+                <td v-if="false">Cá nhân</td>
+                <td v-if="false">
                   <div class="td-multiple">
                     <div class="td-m-icon icon icon-24 icon-group">
                       <div class="icon icon-16 icon-user"></div>
@@ -310,7 +318,9 @@
                 <td>
                   <div class="td-multiple">
                     <div class="td-m-icon icon icon-datepicker"></div>
-                    <div class="td-m-text">12/12/2022</div>
+                    <div class="td-m-text">
+                      {{ formatDateTime(mytask.StartTime) }}
+                    </div>
                   </div>
                 </td>
                 <td>
@@ -318,156 +328,69 @@
                     <div
                       class="td-m-icon icon icon-24 icon-datepicker-yes"
                     ></div>
-                    <div class="td-m-text">12/12/2022</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-10 icon-status outofdate"
-                    ></div>
-                    <div class="td-m-text">Quá hạn</div>
-                  </div>
-                </td>
-                <td>Đang hoạt động</td>
-                <td>Gần xong</td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text"></div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-performer"></div>
-                    <div class="td-m-text">Quách Văn Cảnh</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text">Quách Văn Cảnh</div>
-                  </div>
-                </td>
-                <td>12/12/2022</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="td-multiple">
-                    <div
-                      class="td-m-icon icon icon-24 icon-complete completed"
-                    ></div>
-                    <div class="td-m-text">Tạo công việc của cá nhân</div>
-                  </div>
-                </td>
-                <td>Cá nhân</td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-group">
-                      <div class="icon icon-16 icon-user"></div>
+                    <div class="td-m-text">
+                      {{ formatDateTime(mytask.EndTime) }}
                     </div>
-                    <div class="td-m-text">Công việc cá nhân</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-datepicker"></div>
-                    <div class="td-m-text">12/12/2022</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-datepicker"></div>
-                    <div class="td-m-text"></div>
                   </div>
                 </td>
                 <td>
                   <div class="td-multiple">
                     <div
-                      class="td-m-icon icon icon-10 icon-status jobdue"
+                      class="td-m-icon icon icon-10 icon-status"
+                      :class="
+                        onBindingJobStatus(mytask.EndTime, mytask.JobStatus)
+                      "
                     ></div>
-                    <div class="td-m-text">Đến hạn</div>
-                  </div>
-                </td>
-                <td>Đang hoạt động</td>
-                <td>Gần xong</td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text"></div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-performer"></div>
-                    <div class="td-m-text">Quách Văn Cảnh</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text">Hoàng Tú</div>
-                  </div>
-                </td>
-                <td>12/12/2022</td>
-              </tr>
-              <tr>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-complete"></div>
-                    <div class="td-m-text">Tạo công việc của cá nhân</div>
-                  </div>
-                </td>
-                <td>Cá nhân</td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-group">
-                      <div class="icon icon-16 icon-user"></div>
+                    <div class="td-m-text">
+                      {{
+                        isDateGreaterThanToday(mytask.EndTime)
+                          ? "Quá hạn"
+                          : mytask.JobStatus == ENUMJOBSTATUS.Complete
+                          ? "Đã hoàn thành"
+                          : mytask.JobStatus == ENUMJOBSTATUS.Processing
+                          ? "Đang thực hiện"
+                          : mytask.JobStatus == ENUMJOBSTATUS.Todo
+                          ? "Cần thực hiện"
+                          : ""
+                      }}
                     </div>
-                    <div class="td-m-text">Công việc cá nhân</div>
                   </div>
                 </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-datepicker"></div>
-                    <div class="td-m-text">12/12/2022</div>
-                  </div>
-                </td>
+                <td v-if="false">Đang hoạt động</td>
+                <td v-if="false">Gần xong</td>
                 <td>
                   <div class="td-multiple">
                     <div
-                      class="td-m-icon icon icon-24 icon-datepicker-yes"
+                      class="td-m-icon icon icon-16"
+                      :class="{
+                        important: mytask.JobTag == ENUMJOBTAG.Important,
+                        instant: mytask.JobTag == ENUMJOBTAG.Urgent,
+                      }"
                     ></div>
-                    <div class="td-m-text">12/12/2022</div>
-                  </div>
-                </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-10 icon-status"></div>
-                    <div class="td-m-text">Cần giao</div>
-                  </div>
-                </td>
-                <td>Đang hoạt động</td>
-                <td>Gần xong</td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text"></div>
+                    <div class="td-m-text">
+                      {{
+                        mytask.JobTag == ENUMJOBTAG.Important
+                          ? "Quan trọng"
+                          : mytask.JobTag == ENUMJOBTAG.Urgent
+                          ? "Khẩn cấp"
+                          : ""
+                      }}
+                    </div>
                   </div>
                 </td>
                 <td>
                   <div class="td-multiple">
                     <div class="td-m-icon icon icon-performer"></div>
+                    <div class="td-m-text">{{ mytask.EmployeeName }}</div>
+                  </div>
+                </td>
+                <td v-if="false">
+                  <div class="td-multiple">
+                    <div class="td-m-icon icon icon-jobadd"></div>
                     <div class="td-m-text">Quách Văn Cảnh</div>
                   </div>
                 </td>
-                <td>
-                  <div class="td-multiple">
-                    <div class="td-m-icon icon icon-jobadd"></div>
-                    <div class="td-m-text">Thuỳ Trang</div>
-                  </div>
-                </td>
-                <td>12/12/2022</td>
+                <td>{{ formatDateTime(mytask.CreatedDate) }}</td>
               </tr>
             </tbody>
           </table>
@@ -479,6 +402,8 @@
 
 <script>
 import SortByDate from "./../../components/popup/sort-by-date.vue";
+import { ENUMJOBSTATUS } from "@/enum.js";
+import { ENUMJOBTAG } from "@/enum.js";
 export default {
   name: "MyTask",
   components: { SortByDate },
@@ -491,14 +416,104 @@ export default {
       },
     },
   },
-  created() {},
-  methods: {},
+  created() {
+    this.onGetAllTask();
+  },
+  methods: {
+    onBindingJobStatus(time, status) {
+      var clas = "";
+      if (this.isDateGreaterThanToday(time)) {
+        clas = "outofdate";
+      } else {
+        if (status == ENUMJOBSTATUS.Processing) {
+          clas = "progess";
+        }
+        if (status == ENUMJOBSTATUS.Todo) {
+          clas = "todo";
+        }
+        if (status == ENUMJOBSTATUS.Complete) {
+          clas = "complete";
+        }
+      }
+      return clas;
+    },
+    isDateGreaterThanToday(dateString) {
+      const date = new Date(dateString);
+      const today = new Date();
+      if (!dateString) {
+        return false;
+      } else {
+        return date < today;
+      }
+    },
+    onGetAllTask() {
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Assign/GetAllMyTask?id=${localStorage.getItem(
+            "userid"
+          )}&dbdomain=${localStorage.getItem(
+            "domain-db"
+          )}&dbcompany=${localStorage.getItem("domain-company")}`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.mytask = res.data;
+            console.log(this.mytask);
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    formatDateTime(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      if (
+        `${day}/${month}/${year}` == "01/01/1970" ||
+        `${day}/${month}/${year}` == "01/01/1"
+      ) {
+        return ``;
+      } else {
+        return `${day}/${month}/${year} - ${hours}:${minutes}`;
+      }
+    },
+  },
   data() {
     return {
       isShowSortByDate: false,
+      mytask: [],
+      ENUMJOBSTATUS,
+      ENUMJOBTAG,
     };
   },
 };
 </script>
 
-<style></style>
+<style scoped>
+.outofdate {
+  background-color: red !important;
+  border-color: red;
+}
+.complete {
+  background-color: #50b83c !important;
+  border-color: #50b83c !important;
+}
+.todo {
+  /* background-color: rgb(141, 163, 166) !important;
+  border-color: rgb(141, 163, 166) !important; */
+}
+.progess {
+  background-color: coral !important;
+  border-color: coral !important;
+}
+.important {
+  background-image: url(./../../assets/img/information-circle-orange.svg);
+}
+.instant {
+  background-image: url(./../../assets/img/lightning-circle-red.svg);
+}
+</style>
