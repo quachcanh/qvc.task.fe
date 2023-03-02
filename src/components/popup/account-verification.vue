@@ -98,7 +98,7 @@ export default {
                   // Gọi API cập nhật thông tin
                   this.updateAccountType();
                   // Gọi API thực hiện tạo db domain
-                  this.createDBDomain();
+                  this.createDBDomain(res.data);
                   this.error = [];
                   this.error.push(
                     "Tài khoản đã được xác minh. Đăng nhập để tiếp tục."
@@ -145,12 +145,9 @@ export default {
     /**
      * Thực hiện tạo db domain
      */
-    createDBDomain() {
+    createDBDomain(data) {
       this.axios
-        .post(
-          "http://localhost:56428/api/v2/Registers/CreateDBDomain",
-          this.employee
-        )
+        .post("http://localhost:56428/api/v2/Registers/CreateDBDomain", data)
         .then(() => {})
         .catch(() => {});
     },

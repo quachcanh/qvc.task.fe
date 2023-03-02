@@ -48,4 +48,23 @@ const router = createRouter({
   history: createWebHistory(),
   routes: routers,
 });
-createApp(App).use(VueAxios, axios).use(router).mount("#app");
+
+const app = createApp(App);
+app.config.globalProperties.$common = {
+  getNameDB(idcompany) {
+    var state = parseInt(localStorage.getItem("state"));
+    // Cá nhân
+    if (state == 0) {
+      return localStorage.getItem("domain-db");
+    } else {
+      // Công ty
+      if (!idcompany || idcompany === "00000000-0000-0000-0000-000000000000") {
+        return localStorage.getItem("domain-db");
+      } else {
+        return localStorage.getItem("domain-company");
+      }
+    }
+  },
+};
+
+app.use(VueAxios, axios).use(router).mount("#app");

@@ -115,6 +115,7 @@
           <div class="f-body-item" style="margin-top: 5px">
             <div
               class="select-option"
+              v-if="isShowOptionAssign"
               @click="isShowSelectPopoverAssign = !isShowSelectPopoverAssign"
             >
               <div class="assign-item" v-if="isShowPeopleAssign">
@@ -319,6 +320,15 @@ export default {
       if (this.countJobChild <= 0) {
         this.isShowJobChild = false;
         this.isShowBtnJobChild = true;
+      }
+    },
+    "job.ProjectID": function () {
+      if (!this.job.CompanyID) {
+        this.isShowOptionAssign = false;
+        this.job.EmployeeID = null;
+        this.job.EmployeeName = null;
+      } else {
+        this.isShowOptionAssign = true;
       }
     },
   },
@@ -646,11 +656,13 @@ export default {
      * Thực hiện sự kiện khi chọn dự án
      * @param {*} data dữ liệu dự án
      */
-    onSelectProject(data) {
+    onSelectProject(data, idCompany) {
       // Ẩn popup
       this.isShowSelectProject = false;
       this.job.ProjectID = data.ProjectID;
       this.job.ProjectName = data.ProjectName;
+      this.job.DepartmentID = data.DepartmentID;
+      this.job.CompanyID = idCompany;
     },
 
     /**
@@ -774,6 +786,7 @@ export default {
       /**Hiển thị ô nhập mô tả */
       isShowAddDescription: false,
 
+      isShowOptionAssign: true,
       /**Hiển thị nút thêm công việc con */
       isShowBtnJobChild: true,
 

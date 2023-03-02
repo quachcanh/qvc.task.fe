@@ -8,22 +8,31 @@
         </div>
         <div class="mt-layout"></div>
         <div class="h-left-tab">
-          <div class="tab-item tab-active">
-            <div class="tab-item-text">Việc cần làm</div>
-            <div class="tab-item-quantity icon icon-25"><span>12</span></div>
+          <div
+            ref="tabitem"
+            class="tab-item"
+            :class="{ 'tab-active': index == 0 ? true : false }"
+            v-for="(item, index) in tabItems"
+            :key="index"
+            @click="onSelectedTab(index, item.type)"
+          >
+            <div class="tab-item-text">{{ item.text }}</div>
+            <div class="tab-item-quantity icon icon-25">
+              <span>?</span>
+            </div>
           </div>
-          <div class="tab-item">
+          <div
+            ref="tabassign"
+            class="tab-item"
+            v-if="isShowJobAssign"
+            @click="onSelectedTab(3, ENUMJOBSTATUS.Assignment)"
+          >
             <div class="tab-item-text">Việc giao cho tôi</div>
-            <div class="tab-item-quantity icon icon-25"><span>12</span></div>
+            <div class="tab-item-quantity icon icon-25">
+              <span>?</span>
+            </div>
           </div>
-          <div class="tab-item">
-            <div class="tab-item-text">Việc tôi giao</div>
-            <div class="tab-item-quantity icon icon-25"><span>12</span></div>
-          </div>
-          <div class="tab-item">
-            <div class="tab-item-text">Liên quan đến tôi</div>
-            <div class="tab-item-quantity icon icon-25"><span>12</span></div>
-          </div>
+
           <div class="btn-header btn-other">
             <span class="btn-h-text" style="color: #000">Khác</span>
             <div class="btn-add-plus">
@@ -285,8 +294,10 @@
             <thead>
               <tr>
                 <th>Tên công việc</th>
-                <th v-if="false">Phòng ban</th>
-                <th v-if="false">Dự án/Nhóm</th>
+                <th>
+                  {{ textDepart }}
+                </th>
+                <th>Dự án/Nhóm</th>
                 <th>Thời điểm bắt đầu</th>
                 <th>Hạn hoàn thành</th>
                 <th>Tình trạng</th>
@@ -299,20 +310,41 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(mytask, index) in mytask" :key="index">
+              <tr
+                v-for="(mytask, index) in mytask"
+                :key="index"
+                class="job-row"
+              >
                 <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-complete"></div>
-                    <div class="td-m-text">{{ mytask.JobName }}</div>
+                    <div
+                      class="td-m-icon icon icon-24"
+                      :class="{
+                        iconComplete:
+                          mytask.JobStatus == ENUMJOBSTATUS.Complete,
+                        iconProgess:
+                          mytask.JobStatus == ENUMJOBSTATUS.Processing,
+                        iconTodo: mytask.JobStatus == ENUMJOBSTATUS.Todo,
+                      }"
+                    ></div>
+                    <div
+                      class="td-m-text"
+                      :class="{
+                        textdecoration:
+                          mytask.JobStatus == ENUMJOBSTATUS.Complete,
+                      }"
+                    >
+                      {{ mytask.JobName }}
+                    </div>
                   </div>
                 </td>
-                <td v-if="false">Cá nhân</td>
-                <td v-if="false">
+                <td>{{ mytask.DepartmentName }}</td>
+                <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-group">
+                    <div class="td-m-icon icon icon-24 icon-group-mytask">
                       <div class="icon icon-16 icon-user"></div>
                     </div>
-                    <div class="td-m-text">Công việc cá nhân</div>
+                    <div class="td-m-text">{{ mytask.ProjectName }}</div>
                   </div>
                 </td>
                 <td>
@@ -342,17 +374,7 @@
                       "
                     ></div>
                     <div class="td-m-text">
-                      {{
-                        isDateGreaterThanToday(mytask.EndTime)
-                          ? "Quá hạn"
-                          : mytask.JobStatus == ENUMJOBSTATUS.Complete
-                          ? "Đã hoàn thành"
-                          : mytask.JobStatus == ENUMJOBSTATUS.Processing
-                          ? "Đang thực hiện"
-                          : mytask.JobStatus == ENUMJOBSTATUS.Todo
-                          ? "Cần thực hiện"
-                          : ""
-                      }}
+                      {{ onGenTextJobStatus(mytask.JobStatus, mytask.EndTime) }}
                     </div>
                   </div>
                 </td>
@@ -398,15 +420,18 @@
       </div>
     </div>
   </div>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
 </template>
 
 <script>
 import SortByDate from "./../../components/popup/sort-by-date.vue";
 import { ENUMJOBSTATUS } from "@/enum.js";
 import { ENUMJOBTAG } from "@/enum.js";
+import { ENUMSTATE } from "@/enum.js";
+import QvcLoading from "./../../components/dialog/qvc-loading.vue";
 export default {
   name: "MyTask",
-  components: { SortByDate },
+  components: { SortByDate, QvcLoading },
   watch: {
     // Thay đổi title
     $route: {
@@ -417,9 +442,35 @@ export default {
     },
   },
   created() {
-    this.onGetAllTask();
+    if (parseInt(localStorage.getItem("state")) == ENUMSTATE.CaNhan) {
+      this.textDepart = "Danh mục công việc";
+      this.isShowJobAssign = false;
+    } else {
+      this.textDepart = "Phòng ban";
+      this.isShowJobAssign = true;
+    }
+    this.onGetAllTask(0, ENUMJOBSTATUS.Processing);
   },
   methods: {
+    onSelectedTab(idx, type) {
+      // Xoá actic tab khác
+      var all = this.$refs.tabitem;
+      var tabass = this.$refs.tabassign;
+      for (const i of all) {
+        i.classList.remove("tab-active");
+      }
+      if (tabass) {
+        tabass.classList.remove("tab-active");
+      }
+
+      // Active tab hiện tại
+      if (idx == 3) {
+        tabass.classList.add("tab-active");
+      } else {
+        all[idx].classList.add("tab-active");
+      }
+      this.onGetAllTask(idx, type);
+    },
     onBindingJobStatus(time, status) {
       var clas = "";
       if (this.isDateGreaterThanToday(time)) {
@@ -446,23 +497,56 @@ export default {
         return date < today;
       }
     },
-    onGetAllTask() {
+
+    onGenTextJobStatus(jobstatus, endtime) {
+      if (this.isDateGreaterThanToday(endtime)) {
+        if (jobstatus == ENUMJOBSTATUS.Complete) {
+          return "Hoàn thành quá hạn";
+        } else {
+          return "Quá hạn";
+        }
+      } else if (jobstatus == ENUMJOBSTATUS.Complete) {
+        return "Đã hoàn thành";
+      } else if (jobstatus == ENUMJOBSTATUS.Processing) {
+        return "Đang thực hiện";
+      } else {
+        return "Cần thực hiện";
+      }
+    },
+
+    onGetAllTask(idx, type) {
+      //Build dữ liệu
+      var data = {
+        Id: localStorage.getItem("userid"),
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+        Type: type,
+      };
+      this.isShowLoading = true;
       this.axios
-        .get(
-          `http://localhost:56428/api/v2/Assign/GetAllMyTask?id=${localStorage.getItem(
-            "userid"
-          )}&dbdomain=${localStorage.getItem(
-            "domain-db"
-          )}&dbcompany=${localStorage.getItem("domain-company")}`
-        )
+        .post("http://localhost:56428/api/v2/Assign/GetAllMyTask", data)
         .then((res) => {
           if (res.data) {
-            this.mytask = res.data;
-            console.log(this.mytask);
+            setTimeout(() => {
+              this.isShowLoading = false;
+              this.mytask = res.data;
+              this.totalRow = res.data.length;
+              if (idx == 3) {
+                this.$refs.tabassign.lastChild.firstElementChild.innerHTML =
+                  this.totalRow;
+              } else {
+                this.$refs.tabitem[idx].lastChild.firstElementChild.innerHTML =
+                  this.totalRow;
+              }
+            }, 300);
           }
         })
         .catch((res) => {
-          console.log(res);
+          setTimeout(() => {
+            this.isShowLoading = false;
+            console.log(res);
+          }, 300);
         });
     },
     formatDateTime(dateString) {
@@ -484,16 +568,40 @@ export default {
   },
   data() {
     return {
+      textDepart: "Phòng ban",
+      totalRow: 0,
       isShowSortByDate: false,
       mytask: [],
       ENUMJOBSTATUS,
       ENUMJOBTAG,
+      isShowJobAssign: false,
+      isShowLoading: false,
+      tabItems: [
+        { text: "Việc đang làm", type: ENUMJOBSTATUS.Processing },
+        { text: "Việc đã hoàn thành", type: ENUMJOBSTATUS.Complete },
+        { text: "Việc quá hạn", type: ENUMJOBSTATUS.OutOfDate },
+      ],
     };
   },
 };
 </script>
 
 <style scoped>
+.job-row {
+  cursor: pointer;
+}
+.job-row:hover {
+  background-color: #eef8ec;
+}
+.icon-group-mytask {
+  border-radius: 56px;
+  background-color: #50b83c !important;
+  position: relative;
+}
+
+.textdecoration {
+  text-decoration: line-through !important;
+}
 .outofdate {
   background-color: red !important;
   border-color: red;
@@ -515,5 +623,15 @@ export default {
 }
 .instant {
   background-image: url(./../../assets/img/lightning-circle-red.svg);
+}
+
+.iconTodo {
+  background-image: url(./../../assets/img/complete.svg);
+}
+.iconProgess {
+  background-image: url(./../../assets/img/Progress.svg);
+}
+.iconComplete {
+  background-image: url(./../../assets/img/done-green.svg);
 }
 </style>

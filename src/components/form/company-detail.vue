@@ -107,6 +107,7 @@
   </div>
 </template>
 <script>
+import { ENUMTYPEEMP } from "@/enum.js";
 export default {
   name: "CompanyDetail",
   props: [],
@@ -207,7 +208,7 @@ export default {
         .get(
           `http://localhost:56428/api/v2/Employee/getall-user-dbinfo?dbDomain=${localStorage.getItem(
             "domain-db"
-          )}&dbInfo=qvc_task_info`
+          )}&dbInfo=qvc_task_info&type=${ENUMTYPEEMP.Add}`
         )
         .then((res) => {
           if (res.data) {
@@ -239,6 +240,7 @@ export default {
       empSelected: [],
       company: {},
       role: 1,
+      ENUMTYPEEMP,
     };
   },
 };

@@ -36,8 +36,8 @@ export default {
      * Thực hiện sự kiện khi chọn dự án
      * @param {*} data dữ liệu dự án
      */
-    onSelectProject(data) {
-      this.$emit("onSelectProject", data);
+    onSelectProject(data, idcompany) {
+      this.$emit("onSelectProject", data, idcompany);
     },
     /**
      * Lấy danh sách phòng ban

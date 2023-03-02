@@ -253,7 +253,7 @@
     @onClose="isShowProjectDetail = !isShowProjectDetail"
     @onCancel="isShowProjectDetail = !isShowProjectDetail"
     @onConfirm="insertProject"
-    :iddeprt="idDeprt"
+    :iddeprt="this.idDeprt"
     :namedeprt="nameDeprt"
     :idcompany="idCompany"
   ></ProjectDetail>
@@ -424,6 +424,7 @@ export default {
       this.$router.push("/login");
     },
     insertAssign(assign, db) {
+      // Kiểm tra và lấy domain để insert giao việc
       var data = {
         Data: assign,
         DBDomain: db,
@@ -438,11 +439,8 @@ export default {
 
     insertJob(job, jobchild) {
       // Bulid dữ liệu
-      var state = parseInt(localStorage.getItem("state"));
-      var db =
-        state == ENUMSTATE.CaNhan
-          ? localStorage.getItem("domain-db")
-          : localStorage.getItem("domain-company");
+      var db = this.$common.getNameDB(job.CompanyID);
+
       var data = {
         DataInsert: {
           Data: job,
@@ -465,23 +463,34 @@ export default {
               ENUMTOAST.Success
             );
           }, 500);
-          //Buli dữ liệu giao việc
-          if (!job.EmployeeID || !job.EmployeeName) {
-            var assign = {
-              CreatedBy: localStorage.getItem("full-name"),
+          // Nếu chọn người giao việc thì thực hiện giao việc
+          if (!job.CompanyID && !job.EmployeeID) {
+            // Giao việc cho cá nhân
+            // Build dữ liệu giao việc
+            var assigns = {
+              CreatedBy: !localStorage.getItem("full-name")
+                ? ""
+                : localStorage.getItem("full-name"),
               EmployeeID: localStorage.getItem("userid"),
               JobID: job.JobID,
+              State: ENUMSTATE.CaNhan,
             };
-            var bd2 = localStorage.getItem("domain-db");
-            this.insertAssign(assign, bd2);
-          } else {
-            var assigns = {
-              CreatedBy: localStorage.getItem("full-name"),
-              EmployeeID: job.EmployeeID,
-              JobID: job.JobID,
-            };
-            var db = localStorage.getItem("domain-company");
+            // Gọi hàm giao việc
             this.insertAssign(assigns, db);
+          } else {
+            if (job.EmployeeID) {
+              // Build dữ liệu giao việc
+              var ass = {
+                CreatedBy: !localStorage.getItem("full-name")
+                  ? ""
+                  : localStorage.getItem("full-name"),
+                EmployeeID: job.EmployeeID,
+                JobID: job.JobID,
+                State: ENUMSTATE.CongTy,
+              };
+              // Gọi hàm giao việc
+              this.insertAssign(ass, db);
+            }
           }
         })
         .catch((res) => {
@@ -592,10 +601,7 @@ export default {
               : null,
           CreatedBy: localStorage.getItem("full-name"),
         },
-        DBDomain:
-          this.state == ENUMSTATE.CaNhan
-            ? localStorage.getItem("domain-db")
-            : localStorage.getItem("domain-company"),
+        DBDomain: this.$common.getNameDB(localStorage.getItem("company-id")),
       };
       this.isShowLoading = true;
       //Gọi API
@@ -679,20 +685,18 @@ export default {
         this.isShowProjectDetail = true;
       } else {
         this.isShowProjectDetail = true;
-        this.idDeprt = iddeprt;
-        this.nameDeprt = namedeprt;
-        this.idCompany = idcompany;
       }
+      this.idDeprt = iddeprt;
+      this.nameDeprt = namedeprt;
+      this.idCompany = idcompany;
     },
 
-    insertProject(project, listid, companyid) {
+    insertProject(project, listid, idcompany) {
       // Bulid dữ liệu
       project.ProjectCode = this.generateCodeDeprt("PR");
       var data = {
         Data: project,
-        DBDomain: !companyid
-          ? localStorage.getItem("domain-db")
-          : localStorage.getItem("domain-company"),
+        DBDomain: this.$common.getNameDB(idcompany),
       };
       data.Data.CreatedBy = localStorage.getItem("full-name");
       this.isShowLoading = true;

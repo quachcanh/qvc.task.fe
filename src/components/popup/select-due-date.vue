@@ -20,14 +20,6 @@
         </div>
         <div class="content-end">
           <div class="c-container">
-            <div class="c-text">Số ngày</div>
-            <input
-              class="input number"
-              type="number"
-              v-model="timeJob.DayNumber"
-            />
-          </div>
-          <div class="c-container">
             <div class="c-text">Hạn hoàn thành</div>
             <input class="input" type="date" v-model="timeJob.EndDate" />
           </div>
@@ -42,7 +34,7 @@
           </div>
         </div>
       </div>
-      <div class="add-date-start">
+      <div class="add-date-start" style="display: none">
         <div class="icon icon-24 icon-plus-blue"></div>
         <div class="option-plus-text">Thêm ngày bắt đầu</div>
       </div>

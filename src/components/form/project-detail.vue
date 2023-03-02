@@ -64,7 +64,7 @@
             class="input"
             v-model="this.project.Description"
             type="text"
-          />
+          ></textarea>
         </div>
         <div class="from-item form-select" v-if="keyRole.isShowAddEmp">
           <div class="item-content">Thành viên (1)</div>

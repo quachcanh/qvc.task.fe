@@ -9,7 +9,7 @@
       :key="index"
       class="item-pro item-project"
       :objid="item.ProjectID"
-      @click="onSelectProject(item)"
+      @click="onSelectProject(item, idcompany)"
     >
       <div class="icon-pro">
         <div class="icon icon-16 icon-leaf"></div>
@@ -34,8 +34,8 @@ export default {
      * Thực hiện khi chọn dự án để thêm công việc
      * @param {*} data đối tượng dự án
      */
-    onSelectProject(data) {
-      this.$emit("onSelectProject", data);
+    onSelectProject(data, idcompany) {
+      this.$emit("onSelectProject", data, idcompany);
     },
 
     /**

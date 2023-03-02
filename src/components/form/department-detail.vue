@@ -104,6 +104,7 @@
 </template>
 <script>
 import { ENUMMODE } from "@/enum.js";
+import { ENUMTYPEEMP } from "@/enum.js";
 export default {
   name: "DepartmentDetail",
   props: ["mode", "data"],
@@ -181,7 +182,7 @@ export default {
         .get(
           `http://localhost:56428/api/v2/Employee/getall-user-dbinfo?dbDomain=${localStorage.getItem(
             "domain-company"
-          )}&dbInfo=qvc_task_info`
+          )}&dbInfo=qvc_task_info&type=${ENUMTYPEEMP.Assign}`
         )
         .then((res) => {
           if (res.data) {
@@ -251,6 +252,7 @@ export default {
       /**Danh sách thành viên được chọn */
       employeeId: [],
       ENUMMODE,
+      ENUMTYPEEMP,
     };
   },
 };
