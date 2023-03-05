@@ -408,9 +408,11 @@
 }
 
 .popup-sort {
-  width: 200px;
+  width: 250px;
+  min-width: 200px;
   top: 100px;
   left: 425px;
+  z-index: 15;
 }
 
 .popup-sort-time {

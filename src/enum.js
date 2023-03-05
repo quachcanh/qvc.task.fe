@@ -118,3 +118,12 @@ export const ENUMTYPEEMP = {
   /**Công ty */
   Assign: 1,
 };
+
+export const ENUMSORT = {
+  EndTimeASC: 0,
+  EndTimeDESC: 1,
+  StartTimeASC: 2,
+  StartTimeDESC: 3,
+  CreatedDateASC: 4,
+  CreatedDateDESC: 5
+}

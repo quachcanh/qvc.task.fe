@@ -155,6 +155,8 @@
   filter: invert(59%) sepia(76%) saturate(394%) hue-rotate(64deg)
     brightness(88%) contrast(97%);
   margin-right: 16px;
+  cursor: pointer;
+  user-select: none;
 }
 
 .icon-export {
@@ -171,6 +173,7 @@
 .popup-filter {
   top: 46px;
   right: 0px;
+  z-index: 15 !important;
 }
 
 .popup-setup {

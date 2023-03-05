@@ -57,7 +57,7 @@
         </div>
       </div>
     </div>
-    <div class="my-task-content">
+    <div class="my-department-content">
       <div class="c-header">
         <div class="flex-con">
           <div style="font-size: 24px; font-weight: 600">Dự án trực thuộc</div>
@@ -700,9 +700,9 @@ export default {
   display: flex;
   justify-content: center;
 }
-.my-task-content {
+.my-department-content {
   width: calc(100% - 36px);
-  height: calc(100% - 68px);
+  /* height: calc(100% - 68px); */
   padding: 0px 16px 12px 16px;
 }
 .char-pro + .char-pro {
@@ -804,7 +804,7 @@ export default {
   align-items: center;
   position: relative;
 }
-.my-task-content {
+.my-department-content {
   background-color: #f1f1f1 !important;
 }
 .h-left-tab {
