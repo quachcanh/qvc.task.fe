@@ -68,7 +68,7 @@
         </div>
       </div>
       <div class="popup-select" v-if="isShowPopEmp">
-        <div class="pop-body">
+        <div class="pop-body scrollbar">
           <div
             class="item-add"
             v-for="(item, index) in emp"
@@ -182,7 +182,7 @@ export default {
         .get(
           `http://localhost:56428/api/v2/Employee/getall-user-dbinfo?dbDomain=${localStorage.getItem(
             "domain-company"
-          )}&dbInfo=qvc_task_info&type=${ENUMTYPEEMP.Assign}`
+          )}&dbInfo=qvc_task_info&type=${ENUMTYPEEMP.Add}`
         )
         .then((res) => {
           if (res.data) {
@@ -235,7 +235,13 @@ export default {
      * Sự kiện ấn đồng ý
      */
     onConfirm() {
-      this.$emit("onConfirm", this.department, this.empSelected, this.role);
+      this.$emit(
+        "onConfirm",
+        this.department,
+        this.empSelected,
+        this.role,
+        this.mode
+      );
     },
   },
   data() {
@@ -274,9 +280,7 @@ export default {
 .info-emp + .info-emp {
   margin-left: 12px;
 }
-.pop-body {
-  overflow-y: scroll;
-}
+
 .icon-checkbox {
   background-image: url(./../../assets/img/check.svg);
   margin-right: 12px;

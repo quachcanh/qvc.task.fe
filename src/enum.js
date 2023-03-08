@@ -125,5 +125,21 @@ export const ENUMSORT = {
   StartTimeASC: 2,
   StartTimeDESC: 3,
   CreatedDateASC: 4,
-  CreatedDateDESC: 5
-}
+  CreatedDateDESC: 5,
+};
+
+export const ENUMDATEOPTION = {
+  None: 0,
+  ToDay: 1,
+  ThisWeek: 2,
+  LastWeek: 3,
+  ThisMonth: 4,
+  LastMonth: 5,
+  Other: 6,
+};
+
+export const ENUMSCREEN = {
+  Home: 0,
+  Department: 1,
+  Project: 2,
+};

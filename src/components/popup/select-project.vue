@@ -1,5 +1,8 @@
 <template>
-  <div class="popup-combobox popup-select-project" style="padding: 24px">
+  <div
+    class="popup-combobox popup-select-project scrollbar"
+    style="padding: 24px"
+  >
     <div class="arror arrow-top"></div>
     <div class="p-s-content">
       <h3>Chọn dự án/nhóm</h3>
@@ -145,6 +148,7 @@ export default {
   min-width: 400px;
   width: auto;
   top: 55px;
+  max-height: 400px;
 }
 .arror {
   position: absolute;

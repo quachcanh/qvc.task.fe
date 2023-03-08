@@ -34,7 +34,10 @@
               <div class="icon icon-16 cbb"></div>
             </div>
           </div>
-          <div v-if="isShowDropDeprt" class="popup-combobox popup-deprt">
+          <div
+            v-if="isShowDropDeprt"
+            class="popup-combobox popup-deprt scrollbar"
+          >
             <div class="p-s-content">
               <div
                 class="item-ccb"
@@ -44,7 +47,7 @@
                 @click="onSelectDeprt(item)"
               >
                 <span>{{ item.DepartmentName }}</span>
-                <div class="icon icon-cbb"></div>
+                <!-- <div class="icon icon-cbb"></div> -->
               </div>
             </div>
           </div>
@@ -66,7 +69,7 @@
             type="text"
           ></textarea>
         </div>
-        <div class="from-item form-select" v-if="keyRole.isShowAddEmp">
+        <div class="from-item form-select" v-if="false">
           <div class="item-content">Thành viên (1)</div>
           <input
             placeholder="Tìm theo tên hoặc email để thêm nhanh"
@@ -90,9 +93,18 @@
 import { ENUMSTATE } from "@/enum.js";
 import { ENUMROLE } from "@/enum.js";
 import { ENUMMODE } from "@/enum.js";
+import { ENUMSCREEN } from "@/enum.js";
 export default {
   name: "ProjectDetail",
-  props: ["iddeprt", "namedeprt", "idcompany", "mode", "data", "stateedit"],
+  props: [
+    "iddeprt",
+    "namedeprt",
+    "idcompany",
+    "mode",
+    "data",
+    "stateedit",
+    "screen",
+  ],
   emits: ["onClose", "onCancel", "onConfirm"],
   components: {},
   mounted() {
@@ -101,6 +113,7 @@ export default {
     this.setViewRole();
   },
   created() {
+    console.log(this.idcompany, "=", this.namedeprt, "=", this.iddeprt);
     this.onCheckState();
     this.onCheckRole();
     this.setViewRole();
@@ -128,6 +141,11 @@ export default {
       console.log(this.data);
     } else {
       this.textRole.title = "Thêm mới dự án";
+    }
+    //Thiết lập thêm dự án từ trang dự án
+    if (this.screen == ENUMSCREEN.Project) {
+      this.project.DepartmentID = this.iddeprt;
+      this.getDepartmentById(this.iddeprt);
     }
   },
   methods: {
@@ -248,7 +266,13 @@ export default {
      * Sự kiện ấn đồng ý
      */
     onConfirm() {
-      this.$emit("onConfirm", this.project, this.employeeId, this.idcompany);
+      this.$emit(
+        "onConfirm",
+        this.project,
+        this.employeeId,
+        this.idcompany,
+        this.mode
+      );
     },
 
     /**
@@ -295,6 +319,7 @@ export default {
       ENUMSTATE,
       ENUMROLE,
       ENUMMODE,
+      ENUMSCREEN,
     };
   },
 };
@@ -439,5 +464,6 @@ textarea {
   width: 278px;
   position: absolute;
   top: 60px;
+  max-height: 300px;
 }
 </style>

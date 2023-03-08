@@ -15,7 +15,7 @@
         <div class="icon icon-16 icon-leaf"></div>
       </div>
       <span>{{ item.ProjectName }}</span>
-      <div class="icon icon-cbb"></div>
+      <!-- <div class="icon icon-cbb"></div> -->
     </div>
   </div>
 </template>

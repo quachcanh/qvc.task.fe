@@ -64,7 +64,7 @@
             </div>
             <div class="popup-add-job" v-if="isShowAddJob">
               <div class="arror arrow-top"></div>
-              <div class="p-a-item">
+              <div class="p-a-item" v-if="false">
                 <div class="item-icon icon icon-24 add-job"></div>
                 <div class="item-text">Thêm công việc từ mẫu</div>
               </div>
@@ -106,6 +106,7 @@
           </div>
           <div
             class="btn-icon-header"
+            v-if="false"
             @click.stop="isShowFilter = !isShowFilter"
           >
             <div class="icon-header icon-search"></div>
@@ -132,6 +133,7 @@
             </div>
           </div>
           <div
+            v-if="false"
             class="btn-icon-header"
             @click.stop="this.isShowNotification = !this.isShowNotification"
           >
@@ -187,10 +189,11 @@
               </div>
             </div>
           </div>
-          <div class="btn-icon-header">
+          <div class="btn-icon-header" v-if="false">
             <div class="icon-header icon-message"></div>
           </div>
           <div
+            v-if="false"
             class="btn-icon-header"
             @click="this.isShowSetting = !this.isShowSetting"
           >
@@ -210,10 +213,199 @@
             </div>
           </div>
           <div class="btn-icon-header btn-avatar"></div>
-          <div class="text-logout" @click="onLogout">Đăng xuất</div>
+          <div class="text-logout" @click="onLogout">
+            {{ fullName }}
+          </div>
         </div>
       </div>
       <div class="m-content">
+        <div class="container-h-option">
+          <!-- Số lượng công việc hôm nay -->
+          <div class="h-myjob-count">
+            <div class="tite-h">Số lượng công việc tính đến hôm nay</div>
+            <div class="body-h">
+              <div class="item-h">
+                <div class="item-left">
+                  <div class="icon icon-24 icon-quahan"></div>
+                  <div class="text-body">Quá hạn</div>
+                </div>
+                <div class="count-body">{{ jobOutOfDate }}</div>
+              </div>
+              <div class="item-h">
+                <div class="item-left">
+                  <div class="icon icon-24 icon-danglam"></div>
+                  <div class="text-body">Đang làm</div>
+                </div>
+                <div class="count-body">{{ jobProcessing }}</div>
+              </div>
+              <div class="item-h">
+                <div class="item-left">
+                  <div class="icon icon-24 icon-dahoanthanh"></div>
+                  <div class="text-body">Đã hoàn thành</div>
+                </div>
+                <div class="count-body">{{ jobComplete }}</div>
+              </div>
+              <div class="item-h">
+                <div class="item-left">
+                  <div class="icon icon-24 icon-giaochotoi"></div>
+                  <div class="text-body">Giao cho tôi</div>
+                </div>
+                <div class="count-body">{{ jobAssign }}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Số lượng công việc hôm nay -->
+
+          <!-- Danh sách việc đang làm -->
+          <div class="h-jobprogess">
+            <div class="tite-h" style="position: sticky; top: 0">
+              Danh sách công việc đang làm
+            </div>
+            <div class="body-h-list scrollbar">
+              <div
+                class="item-job"
+                v-for="(item, index) in listJobProcessing"
+                :key="index"
+              >
+                <div class="job-status">
+                  <div
+                    title="Ấn để hoàn thành công việc"
+                    class="s-item icon icon-24 icon-Progress"
+                    @click.stop="updateJob(item)"
+                  ></div>
+                  <div class="s-text" style="color: rgb(164, 207, 48)">
+                    Đang thực hiện
+                  </div>
+                </div>
+                <div class="job-name">{{ item.JobName }}</div>
+                <div class="job-icon">
+                  <div class="icon icon-24 icon-relevant-circle-dash-v2"></div>
+                  <div class="icon icon-24 icon-no-date"></div>
+                  <div class="date-end">{{ formatDateTime(item.EndTime) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Danh sách việc đang làm -->
+
+          <!-- Danh sách việc giao cho tôi -->
+          <div class="h-myjob">
+            <div style="position: sticky; top: 0" class="tite-h">
+              Danh sách công việc giao cho tôi
+            </div>
+            <div class="body-h-list scrollbar">
+              <div
+                class="item-job"
+                v-for="(item, index) in listJobAssign"
+                :key="index"
+              >
+                <div class="job-status">
+                  <div
+                    class="s-item icon icon-24 icon-dahoanthanh"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                        'Đã hoàn thành' ||
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                        'Hoàn thành quá hạn'
+                        ? true
+                        : false
+                    "
+                  ></div>
+                  <div
+                    class="s-item icon icon-24 icon-quahan"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Quá hạn'
+                        ? true
+                        : false
+                    "
+                  ></div>
+                  <div
+                    class="s-item icon icon-24 icon-canthuchien"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Cần thực hiện'
+                        ? true
+                        : false
+                    "
+                  ></div>
+                  <div
+                    class="s-item icon icon-24 icon-dangthuchien"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Đang thực hiện'
+                        ? true
+                        : false
+                    "
+                  ></div>
+                  <div
+                    class="text-complete"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Đã hoàn thành'
+                        ? true
+                        : false
+                    "
+                  >
+                    {{ onGenTextJobStatus(item.JobStatus, item.EndTime) }}
+                  </div>
+                  <div
+                    class="text-complete-out"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Hoàn thành quá hạn'
+                        ? true
+                        : false
+                    "
+                  >
+                    {{ onGenTextJobStatus(item.JobStatus, item.EndTime) }}
+                  </div>
+                  <div
+                    class="text-outofdate"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Quá hạn'
+                        ? true
+                        : false
+                    "
+                  >
+                    {{ onGenTextJobStatus(item.JobStatus, item.EndTime) }}
+                  </div>
+                  <div
+                    class="text-todo"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Cần thực hiện'
+                        ? true
+                        : false
+                    "
+                  >
+                    {{ onGenTextJobStatus(item.JobStatus, item.EndTime) }}
+                  </div>
+                  <div
+                    class="text-progress"
+                    v-if="
+                      onGenTextJobStatus(item.JobStatus, item.EndTime) ==
+                      'Đang thực hiện'
+                        ? true
+                        : false
+                    "
+                  >
+                    {{ onGenTextJobStatus(item.JobStatus, item.EndTime) }}
+                  </div>
+                </div>
+                <div class="job-name">{{ item.JobName }}</div>
+                <div class="job-icon">
+                  <div class="icon icon-24 icon-relevant-circle-dash-v2"></div>
+                  <div class="icon icon-24 icon-no-date"></div>
+                  <div class="date-end">{{ formatDateTime(item.EndTime) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Danh sách việc giao cho tôi -->
+        </div>
+
         <div class="m-c-info">
           <div class="m-c-hello">
             <span class="hello-text">{{ hello }}</span>
@@ -263,6 +455,7 @@
     @onConfirm="insertJob"
     :idproject="idProjectSelected"
     :nameproject="nameProjectSelected"
+    :screen="EN"
     v-if="isShowJobDetail"
   ></JobDetail>
   <CompanyDetail
@@ -286,6 +479,7 @@ import { ENUMICON } from "@/enum.js";
 import { ENUMPOPUP } from "@/enum.js";
 import { ENUMTOAST } from "@/enum.js";
 import { ENUMSTATE } from "@/enum.js";
+import { ENUMSCREEN, ENUMJOBSTATUS } from "@/enum.js";
 import { RESAPI } from "@/res.js";
 export default {
   name: "HomeTask",
@@ -300,6 +494,7 @@ export default {
     JobDetail,
   },
   created() {
+    this.fullName = localStorage.getItem("full-name");
     // Kiểm tra xem đã login hay chưa?
     if (!localStorage.getItem("access-token")) {
       // Hiển thị thông báo đăng nhập
@@ -322,9 +517,140 @@ export default {
       this.getDepartment();
       this.showTime();
       this.getSaying();
+      this.onGetTaskProcessing();
+      this.onGetTaskOutOfDate();
+      this.onGetTaskComplete();
+      this.onGetTaskAssign();
     }
   },
   methods: {
+    formatDateTime(dateString) {
+      const date = new Date(dateString);
+      const day = date.getDate().toString().padStart(2, "0");
+      const month = (date.getMonth() + 1).toString().padStart(2, "0");
+      const year = date.getFullYear().toString();
+      const hours = date.getHours().toString().padStart(2, "0");
+      const minutes = date.getMinutes().toString().padStart(2, "0");
+      if (
+        `${day}/${month}/${year}` == "01/01/1970" ||
+        `${day}/${month}/${year}` == "01/01/1"
+      ) {
+        return ``;
+      } else {
+        return `${day}/${month}/${year} - ${hours}:${minutes}`;
+      }
+    },
+    isDateGreaterThanToday(dateString) {
+      const date = new Date(dateString);
+      const today = new Date();
+      if (!dateString) {
+        return false;
+      } else {
+        return date < today;
+      }
+    },
+    onGenTextJobStatus(jobstatus, endtime) {
+      if (this.isDateGreaterThanToday(endtime)) {
+        if (jobstatus == ENUMJOBSTATUS.Complete) {
+          return "Hoàn thành quá hạn";
+        } else {
+          return "Quá hạn";
+        }
+      } else if (jobstatus == ENUMJOBSTATUS.Complete) {
+        return "Đã hoàn thành";
+      } else if (jobstatus == ENUMJOBSTATUS.Processing) {
+        return "Đang thực hiện";
+      } else {
+        return "Cần thực hiện";
+      }
+    },
+    onGetTaskComplete() {
+      //Build dữ liệu
+      var data = {
+        Id: localStorage.getItem("userid"),
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+        Type: ENUMJOBSTATUS.Complete,
+      };
+
+      this.axios
+        .post("http://localhost:56428/api/v2/Assign/GetAllMyTask", data)
+        .then((res) => {
+          if (res.data) {
+            this.jobComplete = res.data.length;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    onGetTaskAssign() {
+      //Build dữ liệu
+      var data = {
+        Id: localStorage.getItem("userid"),
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+        Type: ENUMJOBSTATUS.Assignment,
+      };
+
+      this.axios
+        .post("http://localhost:56428/api/v2/Assign/GetAllMyTask", data)
+        .then((res) => {
+          if (res.data) {
+            this.jobAssign = res.data.length;
+            this.listJobAssign = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    onGetTaskProcessing() {
+      //Build dữ liệu
+      var data = {
+        Id: localStorage.getItem("userid"),
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+        Type: ENUMJOBSTATUS.Processing,
+      };
+
+      this.axios
+        .post("http://localhost:56428/api/v2/Assign/GetAllMyTask", data)
+        .then((res) => {
+          if (res.data) {
+            this.jobProcessing = res.data.length;
+            this.listJobProcessing = res.data;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+    onGetTaskOutOfDate() {
+      //Build dữ liệu
+      var data = {
+        Id: localStorage.getItem("userid"),
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+        Type: ENUMJOBSTATUS.OutOfDate,
+      };
+
+      this.axios
+        .post("http://localhost:56428/api/v2/Assign/GetAllMyTask", data)
+        .then((res) => {
+          if (res.data) {
+            this.jobOutOfDate = res.data.length;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
+
     insertEmpToCompay(data) {
       this.axios
         .post("http://localhost:56428/api/v2/Employee/insert", data)
@@ -403,6 +729,10 @@ export default {
     checkLeve() {
       switch (parseInt(localStorage.getItem("role"))) {
         case 0:
+          this.keyRole.isShowAddCompay =
+            parseInt(localStorage.getItem("state")) == ENUMSTATE.CaNhan
+              ? true
+              : false;
           break;
         case 1:
           this.keyRole.isShowAddCompay = false;
@@ -755,9 +1085,26 @@ export default {
         console.log(error);
       }
     },
+    onGenClassJobStatus(jobstatus, endtime) {
+      if (this.isDateGreaterThanToday(endtime)) {
+        if (jobstatus == ENUMJOBSTATUS.Complete) {
+          return "text-complete-out";
+        } else {
+          return "text-outofdate";
+        }
+      } else if (jobstatus == ENUMJOBSTATUS.Complete) {
+        return "text-complete";
+      } else if (jobstatus == ENUMJOBSTATUS.Processing) {
+        return "";
+      } else {
+        return "text-todo";
+      }
+    },
   },
   data() {
     return {
+      fullName: "",
+      ENUMSCREEN,
       keyRole: {
         isShowAddProject: true,
         isShowAddDepart: true,
@@ -852,15 +1199,97 @@ export default {
       ENUMTOAST,
       RESAPI,
       ENUMSTATE,
+      jobProcessing: 0,
+      jobOutOfDate: 0,
+      jobComplete: 0,
+      jobAssign: 0,
+      listJobProcessing: [],
+      listJobAssign: [],
     };
   },
 };
 </script>
 
 <style scoped>
+.text-complete {
+  color: rgb(53, 190, 69) !important;
+  font-weight: 600;
+  text-decoration: line-through !important;
+}
+.text-complete-out {
+  color: red !important;
+  font-weight: 600;
+  text-decoration: line-through !important;
+}
+.text-outofdate {
+  color: red !important;
+  font-weight: 600;
+}
+.text-todo {
+  color: rgb(141, 163, 166) !important;
+  font-weight: 600;
+}
+.text-progress {
+  font-weight: 600;
+  color: rgb(164, 207, 48);
+}
+.item-job + .item-job {
+  margin-top: 12px;
+}
+.icon-Progress:hover {
+  filter: invert(54%) sepia(80%) saturate(378%) hue-rotate(64deg)
+    brightness(96%) contrast(94%);
+}
+.s-text {
+  font-weight: 600;
+}
+.job-name {
+  font-size: 15px;
+  color: rgba(0, 0, 0, 0.87);
+  margin-bottom: 24px;
+}
+.job-icon {
+  display: flex;
+  align-items: center;
+}
+.date-end {
+  font-size: 12px;
+  font-weight: 600;
+  color: red;
+}
+.icon-relevant-circle-dash-v2 {
+  background-image: url(./../assets/img/relevant-circle-dash-v2.svg);
+  margin-right: 16px;
+}
+.icon-no-date {
+  background-image: url(./../assets/img/no-date.svg);
+  margin-right: 12px;
+}
+.icon-Progress {
+  cursor: pointer;
+  background-image: url(./../assets/img/dangthuchien.svg);
+}
+.s-item {
+  margin-right: 10px;
+}
+.job-status {
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #c2c2c2;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+}
+.item-job {
+  user-select: none;
+  width: calc(100% - 24px);
+  height: auto;
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 12px;
+}
 .text-logout {
   color: #fff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   margin-top: 8px;
   padding-left: 18px;
@@ -869,5 +1298,17 @@ export default {
 }
 .text-logout:hover {
   color: lightgreen;
+}
+.icon-canthuchien {
+  background-image: url(./../assets/img/complete.svg);
+}
+.icon-dahoanthanh {
+  background-image: url(./../assets/img/done-green.svg);
+}
+.icon-dangthuchien {
+  background-image: url(./../assets/img/dangthuchien.svg);
+}
+.icon-quahan {
+  background-image: url(./../assets/img/quahan.svg);
 }
 </style>

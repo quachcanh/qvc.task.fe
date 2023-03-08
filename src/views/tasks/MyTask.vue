@@ -8,16 +8,27 @@
         </div>
         <div class="mt-layout"></div>
         <div class="h-left-tab">
-          <div ref="tabitem" class="tab-item" :class="{ 'tab-active': index == 0 ? true : false }"
-            v-for="(item, index) in tabItems" :key="index" @click="onSelectedTab(index, item.type, ENUMSORT.EndTimeASC)">
+          <div
+            ref="tabitem"
+            class="tab-item"
+            :class="{ 'tab-active': index == 0 ? true : false }"
+            v-for="(item, index) in tabItems"
+            :key="index"
+            @click="onSelectedTab(index, item.type, ENUMSORT.EndTimeASC)"
+          >
             <div class="tab-item-text">{{ item.text }}</div>
             <div class="tab-item-quantity icon icon-25">
               <span>?</span>
             </div>
           </div>
-          <div ref="tabassign" class="tab-item" v-if="isShowJobAssign" @click="
-            onSelectedTab(3, ENUMJOBSTATUS.Assignment, ENUMSORT.EndTimeASC)
-          ">
+          <div
+            ref="tabassign"
+            class="tab-item"
+            v-if="isShowJobAssign"
+            @click="
+              onSelectedTab(3, ENUMJOBSTATUS.Assignment, ENUMSORT.EndTimeASC)
+            "
+          >
             <div class="tab-item-text">Việc giao cho tôi</div>
             <div class="tab-item-quantity icon icon-25">
               <span>?</span>
@@ -68,27 +79,45 @@
               <div class="popup-combobox popup-sort" v-show="isShowSort">
                 <div class="arror arrow-top"></div>
                 <div class="p-s-content">
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.EndTimeASC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.EndTimeASC)"
+                  >
                     <span>Hạn hoàn thành (tăng dần)</span>
                     <div v-if="isShowActiveS0" class="icon icon-cbb"></div>
                   </div>
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.EndTimeDESC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.EndTimeDESC)"
+                  >
                     <span>Hạn hoàn thành (giảm dần)</span>
                     <div v-if="isShowActiveS1" class="icon icon-cbb"></div>
                   </div>
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.StartTimeASC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.StartTimeASC)"
+                  >
                     <span>Ngày bắt đầu (tăng dần)</span>
                     <div v-if="isShowActiveS2" class="icon icon-cbb"></div>
                   </div>
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.StartTimeDESC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.StartTimeDESC)"
+                  >
                     <span>Ngày bắt đầu (giảm dần)</span>
                     <div v-if="isShowActiveS3" class="icon icon-cbb"></div>
                   </div>
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.CreatedDateASC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.CreatedDateASC)"
+                  >
                     <span>Ngày tạo (tăng dần)</span>
                     <div v-if="isShowActiveS4" class="icon icon-cbb"></div>
                   </div>
-                  <div class="item-ccb" @click="onSelectSort(ENUMSORT.CreatedDateDESC)">
+                  <div
+                    class="item-ccb"
+                    @click="onSelectSort(ENUMSORT.CreatedDateDESC)"
+                  >
                     <span>Ngày tạo (giảm dần)</span>
                     <div v-if="isShowActiveS5" class="icon icon-cbb"></div>
                   </div>
@@ -99,7 +128,9 @@
               <div class="job-sort sort-icon">
                 <div class="icon-sort"></div>
               </div>
-              <div class="job-sort sort-text" @click="onShowSort">Sắp xếp công việc </div>
+              <div class="job-sort sort-text" @click="onShowSort">
+                Sắp xếp công việc
+              </div>
               <div class="job-sort sort-state" @click="onShowSort">
                 {{ textSort }}
               </div>
@@ -109,8 +140,11 @@
               <SortByDate v-if="isShowSortByDate"></SortByDate>
             </div>
           </div>
-          <div class="b-header-right">
-            <button class="btn btn-with-icon btn-light btn-setup" v-show="false">
+          <div class="b-header-right" style="position: relative">
+            <button
+              class="btn btn-with-icon btn-light btn-setup"
+              v-show="false"
+            >
               <div class="icon__button icon-setup"></div>
               <span>Thiết lập</span>
             </button>
@@ -122,7 +156,13 @@
               </div>
               <div class="popup-body body-setup">
                 <div class="from-item item-pos">
-                  <input placeholder="Tìm kiếm" class="input i-search-left" type="text" name="" id="" />
+                  <input
+                    placeholder="Tìm kiếm"
+                    class="input i-search-left"
+                    type="text"
+                    name=""
+                    id=""
+                  />
                   <div class="icon icon-pos-16 i-search-input"></div>
                 </div>
                 <div class="item-ccb item-checkbox">
@@ -185,48 +225,99 @@
               <span>Xuất khẩu</span>
             </button>
             <div class="bh-layout"></div>
-            <div class="icon icon-24 icon-filter" @click="this.isShowFilter = !this.isShowFilter"></div>
+            <div
+              class="icon icon-24 icon-filter"
+              @click="this.isShowFilter = !this.isShowFilter"
+            ></div>
+            <div class="active-filter" v-show="isShowActiveFilter"></div>
             <div class="popup popup-filter" v-if="isShowFilter">
               <div class="arror arrow-top arrow-filter"></div>
               <div class="popup-header">
                 <div class="p-header-title">Lọc công việc</div>
-                <div class="icon icon-pos-16 icon-close"></div>
+                <div
+                  class="icon icon-pos-16 icon-close"
+                  style="cursor: pointer"
+                  @click="isShowFilter = !isShowFilter"
+                ></div>
               </div>
               <div class="popup-body">
                 <div class="from-item item-pos">
-                  <input placeholder="Tìm kiếm công việc" class="input i-search-left" type="text" name="" id="" />
+                  <input
+                    placeholder="Tìm kiếm công việc"
+                    class="input i-search-left"
+                    type="text"
+                    v-model="keySearch"
+                  />
                   <div class="icon icon-pos-16 i-search-input"></div>
                 </div>
                 <div class="from-item item-pos">
                   <div class="f-i-title">Hạn hoàn thành</div>
-                  <input class="input i-cbb-right" type="text" name="" id="" @click="this.isShowCbbEndtime = !this.isShowCbbEndtime" />
+                  <input
+                    class="input i-cbb-right"
+                    type="text"
+                    :option="dateOptionValue.Option"
+                    v-model="dateOptionValue.Name"
+                    readonly
+                    @click="onShowCbbDateOption"
+                  />
                   <div class="icon icon-pos-16 icon-dropdown"></div>
-                  <div class="popup-combobox" v-if="isShowCbbEndtime">
+                  <div class="popup-combobox" v-show="isShowCbbEndtime">
                     <div class="p-s-content">
-                      <div class="item-ccb">
-                        <span>Không chọn</span>
-                        <div class="icon icon-cbb"></div>
+                      <div
+                        class="item-ccb"
+                        :option="item.Option"
+                        v-for="(item, index) in dateOption"
+                        :key="index"
+                      >
+                        <span
+                          @click.stop="onSelectDateOption($event, item)"
+                          style="width: 100%; height: 100%; line-height: 36px"
+                          >{{ item.Name }}</span
+                        >
+                        <div
+                          ref="cbbdateoption"
+                          class="icon"
+                          :class="{
+                            'icon-cbb': index == 0 ? true : false,
+                          }"
+                          :option="item.Option"
+                        ></div>
                       </div>
-                      <div class="item-ccb"><span>Hôm nay</span></div>
-                      <div class="item-ccb"><span>Tuần này</span></div>
-                      <div class="item-ccb"><span>Tuần trước</span></div>
-                      <div class="item-ccb"><span>Tháng này</span></div>
-                      <div class="item-ccb"><span>Tháng trước</span></div>
-                      <div class="item-ccb"><span>Tuỳ chọn</span></div>
                     </div>
                   </div>
                 </div>
                 <div class="from-item item-group">
-                  <div class="from-item" style="margin-right: 12px; width: 100%">
-                    <input placeholder="Từ ngày" class="input" type="date" name="" id="" />
+                  <div
+                    class="from-item"
+                    style="margin-right: 12px; width: 100%"
+                  >
+                    <input
+                      placeholder="Từ ngày"
+                      class="input"
+                      type="date"
+                      v-model="dateOptionStart"
+                      v-show="isShowDateOther"
+                    />
                   </div>
                   <div class="from-item" style="width: 100%">
-                    <input placeholder="Đến ngày" class="input" type="date" name="" id="" />
+                    <input
+                      placeholder="Đến ngày"
+                      class="input"
+                      type="date"
+                      v-model="dateOptionEnd"
+                      v-show="isShowDateOther"
+                    />
                   </div>
                 </div>
-                <div class="from-item item-pos">
+                <div class="from-item item-pos" v-if="false">
                   <div class="f-i-title">Trạng thái hoàn thành</div>
-                  <input class="input i-cbb-right" type="text" name="" id="" @click="this.isShowCbbJobStatus = !this.isShowCbbJobStatus" />
+                  <input
+                    class="input i-cbb-right"
+                    type="text"
+                    name=""
+                    id=""
+                    @click="this.isShowCbbJobStatus = !this.isShowCbbJobStatus"
+                  />
                   <div class="icon icon-pos-16 icon-dropdown"></div>
                   <div class="popup-combobox" v-if="isShowCbbJobStatus">
                     <div class="p-s-content">
@@ -260,8 +351,12 @@
                 </div> -->
               </div>
               <div class="popup-footer">
-                <button class="btn btn-light">Bỏ lọc</button>
-                <button class="btn btn-success">Áp dụng</button>
+                <button class="btn btn-light" @click="removeFilter">
+                  Bỏ lọc
+                </button>
+                <button class="btn btn-success" @click="onFilter">
+                  Áp dụng
+                </button>
               </div>
             </div>
           </div>
@@ -287,20 +382,30 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(mytask, index) in mytask" :key="index" class="job-row">
+              <tr
+                v-for="(mytask, index) in mytask"
+                :key="index"
+                class="job-row"
+              >
                 <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24" :class="{
-                      iconComplete:
-                        mytask.JobStatus == ENUMJOBSTATUS.Complete,
-                      iconProgess:
-                        mytask.JobStatus == ENUMJOBSTATUS.Processing,
-                      iconTodo: mytask.JobStatus == ENUMJOBSTATUS.Todo,
-                    }"></div>
-                    <div class="td-m-text" :class="{
-                      textdecoration:
-                        mytask.JobStatus == ENUMJOBSTATUS.Complete,
-                    }">
+                    <div
+                      class="td-m-icon icon icon-24"
+                      :class="{
+                        iconComplete:
+                          mytask.JobStatus == ENUMJOBSTATUS.Complete,
+                        iconProgess:
+                          mytask.JobStatus == ENUMJOBSTATUS.Processing,
+                        iconTodo: mytask.JobStatus == ENUMJOBSTATUS.Todo,
+                      }"
+                    ></div>
+                    <div
+                      class="td-m-text"
+                      :class="{
+                        textdecoration:
+                          mytask.JobStatus == ENUMJOBSTATUS.Complete,
+                      }"
+                    >
                       {{ mytask.JobName }}
                     </div>
                   </div>
@@ -324,20 +429,42 @@
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-24 icon-datepicker-yes"
-                      :class="{ 'icon-outofdate': onGenTextJobStatus(mytask.JobStatus, mytask.EndTime) == 'Quá hạn' ? true : false }">
-                    </div>
-                    <div class="td-m-text"
-                      :class="{ 'text-outofdate': onGenTextJobStatus(mytask.JobStatus, mytask.EndTime) == 'Quá hạn' ? true : false }">
+                    <div
+                      class="td-m-icon icon icon-24 icon-datepicker-yes"
+                      :class="{
+                        'icon-outofdate':
+                          onGenTextJobStatus(
+                            mytask.JobStatus,
+                            mytask.EndTime
+                          ) == 'Quá hạn'
+                            ? true
+                            : false,
+                      }"
+                    ></div>
+                    <div
+                      class="td-m-text"
+                      :class="{
+                        'text-outofdate':
+                          onGenTextJobStatus(
+                            mytask.JobStatus,
+                            mytask.EndTime
+                          ) == 'Quá hạn'
+                            ? true
+                            : false,
+                      }"
+                    >
                       {{ formatDateTime(mytask.EndTime) }}
                     </div>
                   </div>
                 </td>
                 <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-10 icon-status" :class="
-                      onBindingJobStatus(mytask.EndTime, mytask.JobStatus)
-                    "></div>
+                    <div
+                      class="td-m-icon icon icon-10 icon-status"
+                      :class="
+                        onBindingJobStatus(mytask.EndTime, mytask.JobStatus)
+                      "
+                    ></div>
                     <div class="td-m-text">
                       {{ onGenTextJobStatus(mytask.JobStatus, mytask.EndTime) }}
                     </div>
@@ -347,15 +474,18 @@
                 <td v-if="false">Gần xong</td>
                 <td>
                   <div class="td-multiple">
-                    <div class="td-m-icon icon icon-16" :class="{
-                      important: mytask.JobTag == ENUMJOBTAG.Important,
-                      instant: mytask.JobTag == ENUMJOBTAG.Urgent,
-                    }"></div>
+                    <div
+                      class="td-m-icon icon icon-16"
+                      :class="{
+                        important: mytask.JobTag == ENUMJOBTAG.Important,
+                        instant: mytask.JobTag == ENUMJOBTAG.Urgent,
+                      }"
+                    ></div>
                     <div class="td-m-text">
                       {{
                         mytask.JobTag == ENUMJOBTAG.Important
-                        ? "Quan trọng"
-                        : mytask.JobTag == ENUMJOBTAG.Urgent
+                          ? "Quan trọng"
+                          : mytask.JobTag == ENUMJOBTAG.Urgent
                           ? "Khẩn cấp"
                           : ""
                       }}
@@ -391,6 +521,7 @@ import { ENUMJOBSTATUS } from "@/enum.js";
 import { ENUMJOBTAG } from "@/enum.js";
 import { ENUMSTATE } from "@/enum.js";
 import { ENUMSORT } from "@/enum.js";
+import { ENUMDATEOPTION } from "@/enum.js";
 import QvcLoading from "./../../components/dialog/qvc-loading.vue";
 export default {
   name: "MyTask",
@@ -404,6 +535,7 @@ export default {
       },
     },
   },
+  mounted() {},
   created() {
     if (parseInt(localStorage.getItem("state")) == ENUMSTATE.CaNhan) {
       this.textDepart = "Danh mục công việc";
@@ -415,6 +547,73 @@ export default {
     this.onGetAllTask(0, ENUMJOBSTATUS.Processing);
   },
   methods: {
+    onShowCbbDateOption() {
+      this.isShowCbbEndtime = !this.isShowCbbEndtime;
+      var elcbb = this.$refs.cbbdateoption;
+      for (const i of elcbb) {
+        i.classList.remove("icon-cbb");
+        if (
+          parseInt(i.attributes["option"].value) == this.dateOptionValue.Option
+        ) {
+          i.classList.add("icon-cbb");
+        }
+      }
+    },
+    onSelectDateOption(e, item) {
+      // Xoá toàn bộ active của các item
+      var elcbb = this.$refs.cbbdateoption;
+      for (const i of elcbb) {
+        i.classList.remove("icon-cbb");
+        if (parseInt(i.attributes["option"].value) == item.Option) {
+          i.classList.add("icon-cbb");
+        }
+      }
+
+      this.dateOptionValue.Name = item.Name;
+      this.dateOptionValue.Option = item.Option;
+      this.isShowCbbEndtime = false;
+
+      if (item.Option == ENUMDATEOPTION.Other) {
+        this.isShowDateOther = true;
+        if (!this.dateOptionStart) {
+          this.dateOptionStart = null;
+        }
+        if (!this.dateOptionEnd) {
+          this.dateOptionEnd = null;
+        }
+      } else {
+        this.isShowDateOther = false;
+      }
+    },
+    removeFilter() {
+      this.isShowFilter = false;
+      this.keySearch = null;
+      this.dateOptionValue.Name = "Không chọn";
+      this.dateOptionValue.Option = ENUMDATEOPTION.None;
+      this.dateOptionStart = null;
+      this.dateOptionEnd = null;
+      this.onGetAllTask(
+        this.indexTab,
+        this.typeJob,
+        this.typeSort,
+        this.keySearch,
+        this.dateOptionValue.Option,
+        this.dateOptionStart,
+        this.dateOptionEnd
+      );
+    },
+    onFilter() {
+      this.isShowFilter = false;
+      this.onGetAllTask(
+        this.indexTab,
+        this.typeJob,
+        this.typeSort,
+        this.keySearch,
+        this.dateOptionValue.Option,
+        this.dateOptionStart,
+        this.dateOptionEnd
+      );
+    },
     onSelectSort(typesort) {
       switch (typesort) {
         case ENUMSORT.EndTimeASC:
@@ -476,7 +675,16 @@ export default {
           break;
       }
       this.isShowSort = false;
-      this.onGetAllTask(this.indexTab, this.typeJob, typesort);
+      this.typeSort = typesort;
+      this.onGetAllTask(
+        this.indexTab,
+        this.typeJob,
+        typesort,
+        this.keySearch,
+        this.dateOptionValue.Option,
+        this.dateOptionStart,
+        this.dateOptionEnd
+      );
     },
     onShowSort() {
       this.isShowSort = !this.isShowSort;
@@ -545,7 +753,15 @@ export default {
       }
     },
 
-    onGetAllTask(idx, type, typesort = ENUMSORT.EndTimeASC) {
+    onGetAllTask(
+      idx,
+      type,
+      typesort = ENUMSORT.EndTimeASC,
+      keySearch = null,
+      dateOption = ENUMDATEOPTION.None,
+      dateOptionStart = null,
+      dateOptionEnd = null
+    ) {
       //Build dữ liệu
       var data = {
         Id: localStorage.getItem("userid"),
@@ -554,6 +770,10 @@ export default {
         State: parseInt(localStorage.getItem("state")),
         Type: type,
         TypeSort: typesort,
+        Search: keySearch,
+        DateOption: dateOption,
+        StartDate: dateOptionStart,
+        EndDate: dateOptionEnd,
       };
       // Cập nhật lại giá trị index tab và loại công việc
       this.indexTab = idx;
@@ -603,6 +823,43 @@ export default {
   },
   data() {
     return {
+      dateOptionStart: null,
+      dateOptionEnd: null,
+      dateOptionValue: {
+        Name: "Không chọn",
+        Option: ENUMDATEOPTION.None,
+      },
+      dateOption: [
+        {
+          Name: "Không chọn",
+          Option: ENUMDATEOPTION.None,
+        },
+        {
+          Name: "Hôm nay",
+          Option: ENUMDATEOPTION.ToDay,
+        },
+        {
+          Name: "Tuần này",
+          Option: ENUMDATEOPTION.ThisWeek,
+        },
+        {
+          Name: "Tuần trước",
+          Option: ENUMDATEOPTION.LastWeek,
+        },
+        {
+          Name: "Tháng này",
+          Option: ENUMDATEOPTION.ThisMonth,
+        },
+        {
+          Name: "Tháng trước",
+          Option: ENUMDATEOPTION.LastMonth,
+        },
+        {
+          Name: "Tuỳ chọn",
+          Option: ENUMDATEOPTION.Other,
+        },
+      ],
+      keySearch: "",
       textSort: "Hạn hoàn thành (tăng dần)",
       isShowActiveS0: true,
       isShowActiveS1: false,
@@ -628,20 +885,34 @@ export default {
       isShowSort: false,
       ENUMSORT,
       isShowCbbEndtime: false,
-      isShowCbbJobStatus:false,
-      isShowFilter:false,
+      isShowCbbJobStatus: false,
+      isShowFilter: false,
+      typeSort: 0,
+      ENUMDATEOPTION,
+      isShowDateOther: false,
+      isShowActiveFilter: false,
     };
   },
 };
 </script>
 
 <style scoped>
+.active-filter {
+  width: 10px;
+  height: 10px;
+  background-color: red;
+  border-radius: 50px;
+  position: absolute;
+  right: 15px;
+  top: 11px;
+}
 .job-row {
   cursor: pointer;
 }
 
 .icon-outofdate {
-  filter: invert(16%) sepia(93%) saturate(6936%) hue-rotate(360deg) brightness(104%) contrast(115%) !important;
+  filter: invert(16%) sepia(93%) saturate(6936%) hue-rotate(360deg)
+    brightness(104%) contrast(115%) !important;
 }
 
 .job-row:hover {
@@ -701,4 +972,5 @@ export default {
 
 .iconComplete {
   background-image: url(./../../assets/img/done-green.svg);
-}</style>
+}
+</style>

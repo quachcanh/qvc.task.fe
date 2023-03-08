@@ -10,7 +10,11 @@
       <div class="gr-content scrollbar">
         <div class="item-job" v-for="(item, index) in jobTodos" :key="index">
           <div class="job-status">
-            <div class="s-item icon icon-24 icon-todo"></div>
+            <div
+              title="Ấn để hoàn thành công việc"
+              class="s-item icon icon-24 icon-todo"
+              @click.stop="updateJob(item)"
+            ></div>
             <div class="s-text" style="color: rgb(141, 163, 166)">
               Cần thực hiện
             </div>
@@ -38,7 +42,11 @@
           :key="index"
         >
           <div class="job-status">
-            <div class="s-item icon icon-24 icon-Progress"></div>
+            <div
+              title="Ấn để hoàn thành công việc"
+              class="s-item icon icon-24 icon-Progress"
+              @click.stop="updateJob(item)"
+            ></div>
             <div class="s-text" style="color: rgb(164, 207, 48)">
               Đang thực hiện
             </div>
@@ -83,14 +91,18 @@
       </div>
     </div>
   </div>
+  <QvcLoading v-if="isShowLoading"></QvcLoading>
+  <ToastMessage ref="toast"></ToastMessage>
 </template>
 <script>
-import { ENUMSTATE } from "@/enum";
+import { ENUMJOBSTATUS, ENUMSTATE, ENUMTOAST, ENUMMODE } from "@/enum";
+import QvcLoading from "./../../components/dialog/qvc-loading.vue";
+import ToastMessage from "./../../components/toast/toast-message.vue";
 export default {
   name: "ProjectTable",
-  components: {},
+  components: { QvcLoading, ToastMessage },
   emits: [],
-  props: ["id", "state", "isload"],
+  props: ["id", "state", "isload", "nameproject"],
   watch: {
     isload() {
       // Lấy danh sách dự án thep phòng ban
@@ -107,6 +119,51 @@ export default {
   },
   created() {},
   methods: {
+    updateJob(job) {
+      //Dữ liệu
+      var data = {
+        Data: job,
+        DBDomain:
+          this.state == ENUMSTATE.CaNhan
+            ? localStorage.getItem("domain-db")
+            : localStorage.getItem("domain-company"),
+      };
+      data.Data.ModifiedBy = localStorage.getItem("full-name");
+      data.Data.JobStatus = ENUMJOBSTATUS.Complete;
+      this.isShowLoading = true;
+      this.axios
+        .post("http://localhost:56428/api/v2/Job/updateby-id", data)
+        .then(() => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            this.isShowJobDetail = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Thành công!",
+              "Dữ liệu đã được cập nhật.",
+              ENUMTOAST.Success
+            );
+            this.$nextTick(() => {
+              // Đợi 5s trước khi load lại trang
+              setTimeout(() => {
+                location.reload();
+              }, 1000);
+            });
+          }, 500);
+        })
+        .catch((res) => {
+          setTimeout(() => {
+            this.isShowLoading = false;
+            // Hiển thị toast
+            this.$refs.toast.show(
+              "Lỗi!",
+              "Không thể cập nhật dữ liệu.",
+              ENUMTOAST.Waring
+            );
+            console.log(res);
+          }, 500);
+        });
+    },
     /**
      * THực hiện formatj ngày tháng
      * @param {*} data dữ liệu
@@ -122,7 +179,7 @@ export default {
 
       // Tạo chuỗi định dạng "dd/mm/yyyy" từ các giá trị ngày, tháng, năm
       const formattedDate = `${day}/${month}/${year}`;
-      if (formattedDate == "1/1/1") {
+      if (formattedDate == "1/1/1" || formattedDate == "1/1/1970") {
         return "";
       } else {
         return formattedDate;
@@ -170,6 +227,8 @@ export default {
   },
   data() {
     return {
+      ENUMMODE,
+      job: {},
       /**Danh sách công việc cần thực hiện */
       jobTodos: [],
 
@@ -179,6 +238,8 @@ export default {
       /**Danh sách công việc đã hoàn thành */
       jobCompletes: [],
       ENUMSTATE,
+      isShowLoading: false,
+      ENUMTOAST,
     };
   },
 };
@@ -213,6 +274,7 @@ export default {
   align-items: center;
 }
 .item-job {
+  user-select: none;
   width: calc(100% - 24px);
   height: auto;
   background-color: #fff;
@@ -223,10 +285,17 @@ export default {
   margin-top: 12px;
 }
 .icon-todo {
-  background-image: url(./../../assets/img/todo.svg);
+  cursor: pointer;
+  background-image: url(./../../assets/img/complete.svg);
+}
+.icon-todo:hover,
+.icon-Progress:hover {
+  filter: invert(54%) sepia(80%) saturate(378%) hue-rotate(64deg)
+    brightness(96%) contrast(94%);
 }
 .icon-Progress {
-  background-image: url(./../../assets/img/Progress.svg);
+  cursor: pointer;
+  background-image: url(./../../assets/img/dangthuchien.svg);
 }
 .icon-done-green {
   background-image: url(./../../assets/img/done-green.svg);

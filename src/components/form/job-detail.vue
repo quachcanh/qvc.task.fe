@@ -115,6 +115,7 @@
           <div class="f-body-item" style="margin-top: 5px">
             <div
               class="select-option"
+              :class="{ hide: hideSelectPeople }"
               v-if="isShowOptionAssign"
               @click="isShowSelectPopoverAssign = !isShowSelectPopoverAssign"
             >
@@ -299,12 +300,22 @@ import { ENUMSTATE } from "@/enum.js";
 const { v4: uuidv4 } = require("uuid");
 import { ENUMICON } from "@/enum.js";
 import { ENUMTOAST } from "@/enum.js";
+import { ENUMSCREEN } from "@/enum.js";
 import QvcLoading from "./../dialog/qvc-loading.vue";
 import PopupNotification from "./../popup/popup-notification.vue";
 import ToastMessage from "./../toast/toast-message.vue";
 export default {
   name: "JobDetail",
-  props: ["idproject", "nameproject", "data", "state", "mode"],
+  props: [
+    "idcompany",
+    "iddepart",
+    "idproject",
+    "nameproject",
+    "data",
+    "state",
+    "mode",
+    "screen",
+  ],
   emits: ["onClose", "onCancel", "onConfirm", "onCloseDetail"],
   components: {
     SelectProject,
@@ -350,6 +361,31 @@ export default {
     }
   },
   created() {
+    // Thiết lập khi ở màn hình phòng ban
+    if (this.screen == ENUMSCREEN.Department) {
+      if (!this.idcompany) {
+        this.getProjectByIdDepartment(
+          this.iddepart,
+          localStorage.getItem("domain-db")
+        );
+      } else {
+        this.job.CompanyID = this.idcompany;
+        this.getProjectByIdDepartment(
+          this.iddepart,
+          localStorage.getItem("domain-company")
+        );
+      }
+    } else if (this.screen == ENUMSCREEN.Project) {
+      this.job.CompanyID = this.idcompany;
+      this.job.ProjectID = this.idproject;
+      this.job.ProjectName = this.nameproject;
+    } else if (this.screen == ENUMSCREEN.Home) {
+      if (!this.idproject) {
+        // Thiết lập dự án thêm công việc mặc định
+        this.getAllProject();
+      }
+    }
+
     if (parseInt(localStorage.getItem("state")) == ENUMSTATE.CaNhan) {
       this.isShowMenu = false;
     } else {
@@ -372,12 +408,38 @@ export default {
           this.isShowAddDescription = true;
         }
       }
+      // Binding người thực hiện
+      if (!this.job.EmpAssign) {
+        this.isShowPeopleAssign = true;
+        this.isShowSelectAssign = false;
+      } else {
+        this.isShowPeopleAssign = false;
+        this.isShowSelectAssign = true;
+        this.job.EmployeeName = this.job.EmpAssign;
+        this.hideSelectPeople = true;
+      }
     } else {
       this.textRole.title = "Thêm mới công việc";
     }
     this.$nextTick(() => this.$refs.namejob.focus());
   },
   methods: {
+    getProjectByIdDepartment(id, db) {
+      this.axios
+        .get(
+          `http://localhost:56428/api/v2/Project/getall-byid?id=${id}&domain=${db}
+`
+        )
+        .then((res) => {
+          if (res.data) {
+            this.job.ProjectID = res.data[0].ProjectID;
+            this.job.ProjectName = res.data[0].ProjectName;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
+    },
     onDeleteJob() {
       this.isShowWarning = false;
       var db = "";
@@ -446,6 +508,28 @@ export default {
           this.jobChilds.push(job);
         }
       }
+    },
+
+    getAllProject() {
+      var data = {
+        DBDomain: localStorage.getItem("domain-db"),
+        DBCompany: localStorage.getItem("domain-company"),
+        State: parseInt(localStorage.getItem("state")),
+      };
+      this.axios
+        .post("http://localhost:56428/api/v2/Project/getall-project", data)
+        .then((res) => {
+          if (res.data) {
+            const filterArr = res.data.filter(
+              (item) => item.ProjectCode === "CONGVIECCANHAN"
+            );
+            this.job.ProjectID = filterArr[0].ProjectID;
+            this.job.ProjectName = filterArr[0].ProjectName;
+          }
+        })
+        .catch((res) => {
+          console.log(res);
+        });
     },
 
     /**
@@ -820,6 +904,8 @@ export default {
       isShowIconBaCham: false,
       isShowWarning: false,
       typeIcon: ENUMICON.Waring,
+      ENUMSCREEN,
+      hideSelectPeople: false,
     };
   },
 };
@@ -907,6 +993,12 @@ export default {
   right: 32px;
   top: 11px;
   cursor: pointer;
+}
+
+.hide {
+  opacity: 50%;
+  pointer-events: none;
+  cursor: no-drop !important;
 }
 
 textarea {

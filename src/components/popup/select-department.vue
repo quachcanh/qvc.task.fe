@@ -1,5 +1,5 @@
 <template>
-  <div class="popup-combobox cbb-other">
+  <div class="popup-combobox cbb-other scrollbar">
     <div class="arror arrow-top"></div>
     <div class="p-s-content">
       <div
@@ -9,7 +9,7 @@
         @click="onSelect(item.DepartmentID, item.CompanyID)"
       >
         <span>{{ item.DepartmentName }}</span>
-        <div class="icon icon-cbb"></div>
+        <!-- <div class="icon icon-cbb"></div> -->
       </div>
     </div>
   </div>
@@ -95,5 +95,6 @@ export default {
   top: calc(100% + 5px);
   right: 90px;
   width: 200px !important;
+  max-height: 300px;
 }
 </style>

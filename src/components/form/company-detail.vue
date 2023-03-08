@@ -202,17 +202,18 @@ export default {
       console.log(this.empSelected);
       this.isShowPopEmp = false;
     },
-
+    /**
+     * Lấy danh sách người dùng
+     */
     onGetAllEmpInfo() {
       this.axios
-        .get(
-          `http://localhost:56428/api/v2/Employee/getall-user-dbinfo?dbDomain=${localStorage.getItem(
-            "domain-db"
-          )}&dbInfo=qvc_task_info&type=${ENUMTYPEEMP.Add}`
-        )
+        .get(`http://localhost:56428/api/v2/Employee/qvc_task_info`)
         .then((res) => {
-          if (res.data) {
+          if (res) {
             this.emp = res.data;
+            this.emp = this.emp.filter(
+              (e) => e.EmployeeID != localStorage.getItem("userid")
+            );
           }
         })
         .catch((res) => {
